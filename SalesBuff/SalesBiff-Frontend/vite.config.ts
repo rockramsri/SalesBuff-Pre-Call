@@ -12,8 +12,15 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
-  // Outside Lovable sandbox, nitro is skipped unless set here. Vercel needs the vercel preset.
+  // Outside the Lovable sandbox, nitro is skipped unless configured here.
+  // Lovable forces output to dist/, but Vercel's preset must emit Build Output
+  // API v3 under .vercel/output, so override the output paths too.
   nitro: {
     preset: process.env.NITRO_PRESET ?? "vercel",
+    output: {
+      dir: ".vercel/output",
+      serverDir: ".vercel/output/functions/__server.func",
+      publicDir: ".vercel/output/static",
+    },
   },
 });

@@ -16,6 +16,7 @@ node_modules/
 # Build output
 .output/
 .nitro/
+.vercel/
 dist/
 dist-ssr/
 
