@@ -1,0 +1,239 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-yellow: var(--salesbuff-yellow);
+  --color-yellow-deep: var(--salesbuff-yellow-deep);
+  --color-yellow-bright: var(--salesbuff-yellow-bright);
+  --color-panel: var(--salesbuff-panel);
+  --color-panel-raised: var(--salesbuff-panel-raised);
+  --color-ink: var(--salesbuff-ink);
+  --color-ink-soft: var(--salesbuff-ink-soft);
+  --font-display: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.5rem;
+
+  /* Rilla-inspired palette — pure yellow stage, black ink, flat & bold */
+  --salesbuff-yellow: oklch(0.93 0.21 102);          /* signature Rilla yellow */
+  --salesbuff-yellow-bright: oklch(0.96 0.2 102);
+  --salesbuff-yellow-deep: oklch(0.82 0.2 95);
+  --salesbuff-panel: oklch(1 0 0);                    /* white panels on yellow */
+  --salesbuff-panel-raised: oklch(0.99 0.005 100);
+  --salesbuff-ink: oklch(0.16 0 0);                   /* near-black */
+  --salesbuff-ink-soft: oklch(0.38 0 0);
+
+  --background: oklch(0.93 0.21 102);
+  --foreground: oklch(0.16 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.16 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.16 0 0);
+  --primary: oklch(0.16 0 0);
+  --primary-foreground: oklch(0.93 0.21 102);
+  --secondary: oklch(1 0 0);
+  --secondary-foreground: oklch(0.16 0 0);
+  --muted: oklch(0.88 0.16 100);
+  --muted-foreground: oklch(0.35 0.02 100);
+  --accent: oklch(0.16 0 0);
+  --accent-foreground: oklch(0.93 0.21 102);
+  --destructive: oklch(0.55 0.24 28);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.16 0 0);
+  --input: oklch(0.16 0 0);
+  --ring: oklch(0.16 0 0);
+}
+
+.dark { color-scheme: light; }
+
+@layer base {
+  * { border-color: var(--color-border); }
+
+  html, body {
+    background: var(--salesbuff-yellow);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  /* ===== Flat panel (white card on yellow, hard black border) ===== */
+  .skeuo-panel {
+    background: var(--salesbuff-panel);
+    border: 2px solid var(--salesbuff-ink);
+    border-radius: 12px;
+    box-shadow: 6px 6px 0 0 var(--salesbuff-ink);
+  }
+
+  .skeuo-inset {
+    background: oklch(0.97 0.02 100);
+    border: 2px solid var(--salesbuff-ink);
+    border-radius: 8px;
+  }
+
+  /* ===== Result card (white index card) ===== */
+  .skeuo-card {
+    position: relative;
+    background: var(--salesbuff-panel);
+    color: var(--salesbuff-ink);
+    border-radius: 10px;
+    border: 2px solid var(--salesbuff-ink);
+    box-shadow: 4px 4px 0 0 var(--salesbuff-ink);
+    transition: transform 140ms ease, box-shadow 140ms ease;
+  }
+  .skeuo-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 0 var(--salesbuff-ink);
+  }
+  .skeuo-card[data-expanded="true"] {
+    box-shadow: 6px 6px 0 0 var(--salesbuff-ink);
+  }
+
+  /* ===== Yellow callout (opening line) ===== */
+  .skeuo-callout {
+    background: var(--salesbuff-yellow);
+    color: var(--salesbuff-ink);
+    border-radius: 12px;
+    border: 2px solid var(--salesbuff-ink);
+    box-shadow: 6px 6px 0 0 var(--salesbuff-ink);
+  }
+
+  /* ===== Pills ===== */
+  .pill {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: 1.5px solid var(--salesbuff-ink);
+  }
+  .pill-priority-high   { background: oklch(0.62 0.24 28); color: white; }
+  .pill-priority-medium { background: var(--salesbuff-yellow); color: var(--salesbuff-ink); }
+  .pill-priority-low    { background: white; color: var(--salesbuff-ink); }
+  .pill-confidence      { background: white; color: var(--salesbuff-ink); }
+  .pill-category        { background: var(--salesbuff-ink); color: var(--salesbuff-yellow); }
+
+  /* ===== Big record button — flat black with yellow glyph ===== */
+  .record-btn {
+    position: relative;
+    width: 96px; height: 96px;
+    border-radius: 9999px;
+    background: var(--salesbuff-ink);
+    border: 2px solid var(--salesbuff-ink);
+    box-shadow: 5px 5px 0 0 var(--salesbuff-ink);
+    transition: transform 100ms ease, box-shadow 100ms ease, background 120ms;
+    color: var(--salesbuff-yellow);
+    display: grid; place-items: center;
+    cursor: pointer;
+  }
+  .record-btn:hover { transform: translate(-1px, -1px); box-shadow: 6px 6px 0 0 var(--salesbuff-ink); }
+  .record-btn:active {
+    transform: translate(5px, 5px);
+    box-shadow: 0 0 0 0 var(--salesbuff-ink);
+  }
+  .record-btn[data-recording="true"] {
+    background: oklch(0.62 0.24 28);
+    color: white;
+    animation: recPulse 1.4s ease-in-out infinite;
+  }
+  @keyframes recPulse {
+    0%, 100% { box-shadow: 5px 5px 0 0 var(--salesbuff-ink), 0 0 0 0 oklch(0.62 0.24 28 / 0.5); }
+    50%      { box-shadow: 5px 5px 0 0 var(--salesbuff-ink), 0 0 0 18px oklch(0.62 0.24 28 / 0); }
+  }
+
+  /* ===== Black CTA (matches Rilla "Schedule Your Demo") ===== */
+  .btn-yellow {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.85rem 1.4rem;
+    border-radius: 10px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    color: var(--salesbuff-yellow);
+    background: var(--salesbuff-ink);
+    border: 2px solid var(--salesbuff-ink);
+    box-shadow: 4px 4px 0 0 var(--salesbuff-ink);
+    transition: transform 100ms ease, box-shadow 100ms ease;
+    cursor: pointer;
+  }
+  .btn-yellow:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 0 var(--salesbuff-ink); }
+  .btn-yellow:active { transform: translate(4px, 4px); box-shadow: 0 0 0 0 var(--salesbuff-ink); }
+  .btn-yellow:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0 0 var(--salesbuff-ink); }
+
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.55rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.85rem; font-weight: 700;
+    color: var(--salesbuff-ink);
+    background: white;
+    border: 2px solid var(--salesbuff-ink);
+    box-shadow: 3px 3px 0 0 var(--salesbuff-ink);
+    cursor: pointer;
+    transition: transform 100ms ease, box-shadow 100ms ease;
+  }
+  .btn-ghost:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--salesbuff-ink); }
+  .btn-ghost:active { transform: translate(3px, 3px); box-shadow: 0 0 0 0 var(--salesbuff-ink); }
+
+  /* ===== Transcript textarea ===== */
+  .skeuo-textarea {
+    width: 100%;
+    min-height: 140px;
+    resize: vertical;
+    background: white;
+    color: var(--salesbuff-ink);
+    padding: 1rem 1.1rem;
+    border-radius: 10px;
+    border: 2px solid var(--salesbuff-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+    outline: none;
+  }
+  .skeuo-textarea:focus {
+    box-shadow: 4px 4px 0 0 var(--salesbuff-ink);
+  }
+
+  /* ===== Brand mark — black square with yellow letter ===== */
+  .brand-mark {
+    width: 44px; height: 44px; border-radius: 8px;
+    background: var(--salesbuff-ink);
+    border: 2px solid var(--salesbuff-ink);
+    display: grid; place-items: center;
+    color: var(--salesbuff-yellow);
+    font-weight: 900; font-family: var(--font-display);
+  }
+}

@@ -1,0 +1,29 @@
+# Render Blueprint for the SalesBuff Python backend.
+# Assumes this repo's root is `SalesBuff-Pre-Call/`. If your git root is higher,
+# change `rootDir` to the path that contains the `salesbuff/` package.
+#
+# IMPORTANT: numInstances must stay 1 — the job store and the usage counter live
+# in memory, so multiple instances would split state and break polling/limits.
+services:
+  - type: web
+    name: salesbuff-backend
+    runtime: python
+    rootDir: SalesBuff
+    plan: starter
+    numInstances: 1
+    buildCommand: pip install -r salesbuff/requirements.txt
+    startCommand: uvicorn salesbuff.api:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false        # set in the Render dashboard (secret)
+      - key: TAVILY_API_KEY
+        sync: false        # set in the Render dashboard (secret)
+      - key: COURTLISTENER_TOKEN
+        sync: false        # optional; set if you have one
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: USAGE_CURRENT
+        value: "0"
+      - key: USAGE_MAX
+        value: "25"
