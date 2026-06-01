@@ -12,4 +12,8 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Outside Lovable sandbox, nitro is skipped unless set here. Vercel needs the vercel preset.
+  nitro: {
+    preset: process.env.NITRO_PRESET ?? "vercel",
+  },
 });
