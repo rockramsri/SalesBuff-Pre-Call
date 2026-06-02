@@ -162,7 +162,13 @@ function SalesBuffApp() {
       <header className="skeuo-panel px-4 md:px-7 py-4 md:py-5 flex flex-col gap-4 md:flex-row md:items-center md:gap-5">
         {/* Brand row (usage badge sits beside brand on mobile) */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="brand-mark shrink-0">S</div>
+          <img
+            src="/salesbuff-icon.png"
+            alt="SalesBuff"
+            width={44}
+            height={44}
+            className="brand-mark shrink-0"
+          />
           <div className="min-w-0">
             <div className="font-display text-2xl md:text-[28px] font-black tracking-tight leading-none text-ink uppercase">
               SalesBuff

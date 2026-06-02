@@ -328,13 +328,13 @@
     font-size: 0.75rem;
   }
 
-  /* ===== Brand mark — black square with yellow letter ===== */
+  /* ===== Brand mark — SalesBuff app icon ===== */
   .brand-mark {
-    width: 44px; height: 44px; border-radius: 8px;
-    background: var(--salesbuff-ink);
+    width: 44px; height: 44px;
+    border-radius: 10px;
     border: 2px solid var(--salesbuff-ink);
-    display: grid; place-items: center;
-    color: var(--salesbuff-yellow);
-    font-weight: 900; font-family: var(--font-display);
+    object-fit: cover;
+    display: block;
+    background: var(--salesbuff-ink);
   }
 }
