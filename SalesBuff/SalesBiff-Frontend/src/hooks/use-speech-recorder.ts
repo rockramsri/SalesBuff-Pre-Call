@@ -20,11 +20,57 @@ export function useSpeechRecorder() {
   const recRef = useRef<SRInstance | null>(null);
   const finalRef = useRef("");
 
+  // Shared audio metering (one mic stream feeds the waveform; avoids a second
+  // getUserMedia that would compete with speech recognition and add latency).
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const meterActiveRef = useRef(false);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const w = window as unknown as { SpeechRecognition?: SRCtor; webkitSpeechRecognition?: SRCtor };
     const Ctor = w.SpeechRecognition || w.webkitSpeechRecognition;
     setSupported(Boolean(Ctor));
+  }, []);
+
+  const teardownMeter = useCallback(() => {
+    meterActiveRef.current = false;
+    analyserRef.current = null;
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    if (audioCtxRef.current) {
+      void audioCtxRef.current.close();
+      audioCtxRef.current = null;
+    }
+  }, []);
+
+  const setupMeter = useCallback(async () => {
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) return;
+    meterActiveRef.current = true;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!meterActiveRef.current) {
+        stream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+      streamRef.current = stream;
+      const Ctx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const ctx = new Ctx();
+      audioCtxRef.current = ctx;
+      const source = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 1024;
+      analyser.smoothingTimeConstant = 0.6;
+      source.connect(analyser);
+      analyserRef.current = analyser;
+    } catch {
+      /* mic blocked — waveform just stays flat */
+    }
   }, []);
 
   const start = useCallback(() => {
@@ -47,15 +93,22 @@ export function useSpeechRecorder() {
       setTranscript((finalRef.current + interim).trim());
     };
     rec.onerror = (ev) => setError(ev.error || "Voice error");
-    rec.onend = () => setRecording(false);
+    rec.onend = () => { setRecording(false); teardownMeter(); };
     recRef.current = rec;
-    try { rec.start(); setRecording(true); } catch (e) { setError(String(e)); }
-  }, []);
+    try {
+      rec.start();
+      setRecording(true);
+      void setupMeter();
+    } catch (e) { setError(String(e)); }
+  }, [setupMeter, teardownMeter]);
 
   const stop = useCallback(() => {
     try { recRef.current?.stop(); } catch { /* noop */ }
     setRecording(false);
-  }, []);
+    teardownMeter();
+  }, [teardownMeter]);
 
-  return { supported, recording, transcript, setTranscript, start, stop, error };
+  useEffect(() => () => teardownMeter(), [teardownMeter]);
+
+  return { supported, recording, transcript, setTranscript, start, stop, error, analyserRef };
 }

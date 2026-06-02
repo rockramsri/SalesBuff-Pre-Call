@@ -1,22 +1,13 @@
-"""Shared helpers — ids, text truncation, URL normalization."""
+"""Shared helpers — ids and URL normalization."""
 
 from __future__ import annotations
 
-import re
 import uuid
 from urllib.parse import urlparse, urlunparse
 
 
 def make_id(prefix: str = "card") -> str:
     return f"{prefix}_{uuid.uuid4().hex[:8]}"
-
-
-def truncate(text: str, max_len: int) -> str:
-    if not text or max_len <= 0:
-        return ""
-    if len(text) <= max_len:
-        return text
-    return text[: max_len - 1].rstrip() + "…"
 
 
 def normalize_url(url: str) -> str:

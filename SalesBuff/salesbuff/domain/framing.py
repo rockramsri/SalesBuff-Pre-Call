@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from salesbuff.models.entities import (
     ContactPerson,
+    CurrentDeployment,
     EntityRole,
     IncumbentVendor,
+    MeetingMotion,
     ProspectCompany,
     SalesContext,
 )
@@ -68,11 +70,25 @@ def sales_context_blurb(ctx: SalesContext) -> str:
     if ctx.prospect.location:
         prospect += f" in {ctx.prospect.location}"
     parts.append(f"Selling to {prospect}.")
-    if ctx.incumbent:
+
+    # Motion-aware positioning line — never frame the seller as the vendor to beat.
+    deployed = ctx.current_deployment.vendor if ctx.current_deployment else None
+    if deployed and deployed == ctx.rep_company:
+        parts.append(
+            f"This is an {ctx.meeting_motion.value} motion: {ctx.rep_company} is already "
+            "deployed here, so the goal is to broaden adoption — not to win the account."
+        )
+    elif ctx.incumbent and ctx.incumbent.name and ctx.incumbent.name != ctx.rep_company:
         inc = ctx.incumbent.name
         if ctx.incumbent.product_category:
             inc += f" (provides {ctx.incumbent.product_category})"
         parts.append(f"Trying to displace the incumbent vendor {inc}.")
+    elif ctx.named_alternatives:
+        parts.append(f"The buyer may weigh: {', '.join(ctx.named_alternatives)}.")
+    else:
+        sq = ctx.status_quo or "the status quo / no decision"
+        parts.append(f"No single competitor to beat — positioning against {sq}.")
+
     parts.append(f"Contact: {ctx.contact.full_name} ({ctx.contact.title or 'unknown title'}).")
     return " ".join(parts)
 
@@ -113,11 +129,26 @@ def _clean_aliases(raw: object, *, exclude: str = "") -> list[str]:
     return out
 
 
+def _coerce_motion(value: object) -> MeetingMotion:
+    if isinstance(value, str):
+        key = value.strip().lower()
+        for m in MeetingMotion:
+            if m.value == key:
+                return m
+    return MeetingMotion.DISCOVERY
+
+
 def sales_context_from_resolution(data: dict) -> SalesContext:
-    """Map the entity-resolution JSON into a SalesContext."""
+    """Map the entity-resolution JSON into a SalesContext.
+
+    Applies the core safety guard: the seller can never be its own incumbent.
+    If the model marks the seller (or its current deployment) as the incumbent,
+    we drop the incumbent and treat the meeting as an expansion.
+    """
     pc = data.get("prospect_company") or {}
     cp = data.get("contact_person") or {}
     iv = data.get("incumbent_vendor") or {}
+    cd = data.get("current_deployment") or {}
 
     prospect_name = pc.get("name") or "Unknown Company"
     prospect = ProspectCompany(
@@ -132,7 +163,31 @@ def sales_context_from_resolution(data: dict) -> SalesContext:
         company_name=cp.get("company") or prospect_name,
         title=cp.get("title"),
     )
+
+    rep_company = data.get("rep_company")
+    motion = _coerce_motion(data.get("meeting_motion"))
+
+    current_deployment = None
+    if isinstance(cd, dict) and cd.get("vendor"):
+        current_deployment = CurrentDeployment(
+            vendor=cd.get("vendor"),
+            scope=cd.get("scope"),
+            evidence_note=cd.get("evidence_note"),
+        )
+
     incumbent_name = iv.get("name") if isinstance(iv, dict) else None
+    # GUARD: the seller is never its own incumbent. If the model set the
+    # incumbent to the rep's own company (the classic expansion misread), drop it.
+    if incumbent_name and rep_company and _same_company(incumbent_name, rep_company):
+        if current_deployment is None:
+            current_deployment = CurrentDeployment(
+                vendor=rep_company,
+                evidence_note="Seller already deployed (auto-corrected from incumbent).",
+            )
+        incumbent_name = None
+        if motion == MeetingMotion.DISPLACEMENT or motion == MeetingMotion.DISCOVERY:
+            motion = MeetingMotion.EXPANSION
+
     incumbent = (
         IncumbentVendor(
             name=incumbent_name,
@@ -142,11 +197,29 @@ def sales_context_from_resolution(data: dict) -> SalesContext:
         if incumbent_name
         else None
     )
+
     return SalesContext(
         prospect=prospect,
         contact=contact,
         incumbent=incumbent,
         rep_product=data.get("rep_product"),
-        rep_company=data.get("rep_company"),
+        rep_company=rep_company,
+        meeting_motion=motion,
+        current_deployment=current_deployment,
+        named_alternatives=_clean_aliases(data.get("named_alternatives")),
+        status_quo=data.get("status_quo"),
         resolution_note=data.get("note"),
     )
+
+
+def _same_company(a: str, b: str) -> bool:
+    """Loose match: same core name after stripping legal suffixes/punctuation."""
+    import re
+
+    def norm(s: str) -> str:
+        s = re.sub(r"[^\w\s]", " ", s.lower())
+        s = re.sub(r"\b(inc|incorporated|llc|corp|corporation|ltd|lp|co|company|ai)\b", "", s)
+        return re.sub(r"\s+", " ", s).strip()
+
+    na, nb = norm(a), norm(b)
+    return bool(na) and (na == nb or na in nb or nb in na)

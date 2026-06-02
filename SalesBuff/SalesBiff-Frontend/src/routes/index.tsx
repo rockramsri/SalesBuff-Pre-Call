@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Play, Sparkles, RotateCcw, Key, ChevronDown } from "lucide-react";
+import { Loader2, Play, Sparkles, RotateCcw, Key, ChevronDown, Info, ExternalLink } from "lucide-react";
 
 import { useSpeechRecorder } from "@/hooks/use-speech-recorder";
 import { RecordButton } from "@/components/salesbuff/RecordButton";
+import { VoiceBar } from "@/components/salesbuff/VoiceBar";
 import { ResultsHeader } from "@/components/salesbuff/ResultsHeader";
 import { CardList } from "@/components/salesbuff/CardList";
 import { FactsView } from "@/components/salesbuff/FactsView";
@@ -26,13 +27,13 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "One-shot account research for sales reps. Speak, edit, run." },
     ],
   }),
-  component: RellaApp,
+  component: SalesBuffApp,
 });
 
 type Phase = "idle" | "submitting" | "polling" | "ready" | "error";
 
-function RellaApp() {
-  const { recording, transcript, setTranscript, start, stop, error: micError } = useSpeechRecorder();
+function SalesBuffApp() {
+  const { recording, transcript, setTranscript, start, stop, error: micError, analyserRef } = useSpeechRecorder();
   const submit = useServerFn(submitResearch);
   const fetchJob = useServerFn(getResearch);
   const fetchUsage = useServerFn(getUsage);
@@ -156,11 +157,12 @@ function RellaApp() {
   }, [outOfRuns, keysComplete]);
 
   return (
-    <main className="relative z-10 max-w-6xl mx-auto px-5 md:px-8 py-8 md:py-10">
+    <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-5 md:px-8 py-6 md:py-10">
       {/* Top bar */}
-      <header className="skeuo-panel px-5 md:px-7 py-4 md:py-5 flex items-center gap-5">
+      <header className="skeuo-panel px-4 md:px-7 py-4 md:py-5 flex flex-col gap-4 md:flex-row md:items-center md:gap-5">
+        {/* Brand row (usage badge sits beside brand on mobile) */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="brand-mark">S</div>
+          <div className="brand-mark shrink-0">S</div>
           <div className="min-w-0">
             <div className="font-display text-2xl md:text-[28px] font-black tracking-tight leading-none text-ink uppercase">
               SalesBuff
@@ -169,12 +171,22 @@ function RellaApp() {
               Pre-call due diligence, in one breath.
             </div>
           </div>
+          {usage && (
+            <div className="ml-auto md:hidden">
+              <UsageBadge usage={usage} />
+            </div>
+          )}
         </div>
 
-        <div className="flex-1" />
+        <div className="hidden md:block md:flex-1" />
 
-        <div className="flex items-center gap-3 md:gap-5">
-          {usage && <UsageBadge usage={usage} />}
+        {/* Controls row */}
+        <div className="flex items-center justify-between gap-3 md:justify-end md:gap-5">
+          {usage && (
+            <div className="hidden md:block">
+              <UsageBadge usage={usage} />
+            </div>
+          )}
           <div className="hidden md:flex flex-col items-end">
             <div className="text-xs uppercase tracking-wider font-bold text-muted-foreground">
               {recording ? "Listening…" : "Hold the floor"}
@@ -188,14 +200,17 @@ function RellaApp() {
             type="button"
             onClick={run}
             disabled={!canRun}
-            className="btn-yellow"
+            className="btn-yellow flex-1 justify-center md:flex-none"
             aria-label="Run due diligence"
           >
             {isBusy ? <Loader2 className="animate-spin" size={18} /> : <Play size={18} fill="currentColor" />}
-            <span className="hidden sm:inline">Run due diligence</span>
+            <span className="whitespace-nowrap">Run due diligence</span>
           </button>
         </div>
       </header>
+
+      {/* Live voice waveform — only while speaking */}
+      {recording && <VoiceBar analyserRef={analyserRef} />}
 
       {/* Query zone */}
       <section className="mt-6 skeuo-panel p-5 md:p-6">
@@ -336,6 +351,90 @@ function UsageBadge({ usage }: { usage: Usage }) {
 
 type KeyState = { openai: string; tavily: string; courtlistener: string };
 
+function HelpLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center gap-0.5 font-bold text-[var(--salesbuff-ink)] underline underline-offset-2 break-all"
+    >
+      {children}
+      <ExternalLink size={10} className="shrink-0" />
+    </a>
+  );
+}
+
+function KeyHelp({ label, children }: { label: string; children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span
+      className="relative inline-flex"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        type="button"
+        aria-label={`How to get your ${label}`}
+        onClick={() => setOpen((o) => !o)}
+        className="key-help-btn"
+      >
+        <Info size={13} />
+      </button>
+      {open && (
+        <div className="key-help-pop" role="tooltip">
+          <div className="key-help-title">How to get your {label}</div>
+          {children}
+        </div>
+      )}
+    </span>
+  );
+}
+
+const KEY_HELP: Record<keyof KeyState, ReactNode> = {
+  openai: (
+    <ol className="key-help-steps">
+      <li>
+        Sign in at{" "}
+        <HelpLink href="https://platform.openai.com/api-keys">platform.openai.com/api-keys</HelpLink>.
+      </li>
+      <li>
+        Click <b>Create new secret key</b> and copy the <code>sk-…</code> value (shown only once).
+      </li>
+      <li>
+        Add a little credit under <b>Billing</b> — the key needs funds to run.
+      </li>
+    </ol>
+  ),
+  tavily: (
+    <ol className="key-help-steps">
+      <li>
+        Sign up at <HelpLink href="https://app.tavily.com/home">app.tavily.com</HelpLink>.
+      </li>
+      <li>
+        Copy the key (starts with <code>tvly-</code>) from your dashboard / API Keys.
+      </li>
+      <li>Free tier = 1,000 credits/month, no card needed.</li>
+    </ol>
+  ),
+  courtlistener: (
+    <ol className="key-help-steps">
+      <li>
+        Register or sign in:{" "}
+        <HelpLink href="https://www.courtlistener.com/sign-in/">courtlistener.com/sign-in</HelpLink>.
+      </li>
+      <li>
+        Grab your token:{" "}
+        <HelpLink href="https://www.courtlistener.com/profile/api-token/">
+          courtlistener.com/profile/api-token
+        </HelpLink>
+        .
+      </li>
+      <li>Optional — only enables court-record lookups.</li>
+    </ol>
+  ),
+};
+
 function KeysPanel({
   keys,
   onChange,
@@ -352,8 +451,11 @@ function KeysPanel({
     optional = false,
   ) => (
     <div className="space-y-1">
-      <label htmlFor={id} className="text-[0.7rem] uppercase tracking-wider font-bold text-muted-foreground">
-        {label} {optional && <span className="font-normal normal-case">(optional)</span>}
+      <label htmlFor={id} className="flex items-center gap-1.5 text-[0.7rem] uppercase tracking-wider font-bold text-muted-foreground">
+        <span>
+          {label} {optional && <span className="font-normal normal-case">(optional)</span>}
+        </span>
+        <KeyHelp label={label}>{KEY_HELP[id]}</KeyHelp>
       </label>
       <input
         id={id}
@@ -432,7 +534,7 @@ function EmptyState() {
       </div>
       <p className="text-muted-foreground max-w-xl mx-auto">
         Hit the amber button, describe the account in your own words, then run the brief.
-        Rella returns a single, skim-ready research card stack — no chat, no fluff.
+        SalesBuff returns a skim-ready stack of action tips plus a sourced fact dossier — no chat, no fluff.
       </p>
     </div>
   );

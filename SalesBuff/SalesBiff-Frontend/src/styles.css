@@ -44,8 +44,8 @@
 :root {
   --radius: 0.5rem;
 
-  /* Rilla-inspired palette — pure yellow stage, black ink, flat & bold */
-  --salesbuff-yellow: oklch(0.93 0.21 102);          /* signature Rilla yellow */
+  /* SalesBuff palette — pure yellow stage, black ink, flat & bold */
+  --salesbuff-yellow: oklch(0.93 0.21 102);          /* signature SalesBuff yellow */
   --salesbuff-yellow-bright: oklch(0.96 0.2 102);
   --salesbuff-yellow-deep: oklch(0.82 0.2 95);
   --salesbuff-panel: oklch(1 0 0);                    /* white panels on yellow */
@@ -159,6 +159,11 @@
     display: grid; place-items: center;
     cursor: pointer;
   }
+  /* Smaller record button on phones so the top bar isn't crowded. */
+  @media (max-width: 767px) {
+    .record-btn { width: 64px; height: 64px; box-shadow: 4px 4px 0 0 var(--salesbuff-ink); }
+    .record-btn svg { width: 26px; height: 26px; }
+  }
   .record-btn:hover { transform: translate(-1px, -1px); box-shadow: 6px 6px 0 0 var(--salesbuff-ink); }
   .record-btn:active {
     transform: translate(5px, 5px);
@@ -174,7 +179,7 @@
     50%      { box-shadow: 5px 5px 0 0 var(--salesbuff-ink), 0 0 0 18px oklch(0.62 0.24 28 / 0); }
   }
 
-  /* ===== Black CTA (matches Rilla "Schedule Your Demo") ===== */
+  /* ===== Black CTA (primary action button) ===== */
   .btn-yellow {
     position: relative;
     display: inline-flex; align-items: center; gap: 0.5rem;
@@ -225,6 +230,102 @@
   }
   .skeuo-textarea:focus {
     box-shadow: 4px 4px 0 0 var(--salesbuff-ink);
+  }
+
+  /* ===== Live voice waveform bar (only while speaking) ===== */
+  .voice-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1.1rem;
+    background: var(--salesbuff-yellow);
+    border: 2px solid var(--salesbuff-ink);
+    border-radius: 12px;
+    box-shadow: 6px 6px 0 0 var(--salesbuff-ink);
+    overflow: hidden;
+  }
+  .voice-bar-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: none;
+    font-weight: 800;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--salesbuff-ink);
+  }
+  .voice-dot {
+    width: 9px; height: 9px;
+    border-radius: 9999px;
+    background: oklch(0.62 0.24 28);
+    box-shadow: 0 0 0 0 oklch(0.62 0.24 28 / 0.55);
+    animation: voicePulse 1.3s ease-in-out infinite;
+  }
+  @keyframes voicePulse {
+    0%, 100% { box-shadow: 0 0 0 0 oklch(0.62 0.24 28 / 0.5); }
+    50%      { box-shadow: 0 0 0 7px oklch(0.62 0.24 28 / 0); }
+  }
+  .voice-canvas {
+    flex: 1 1 auto;
+    height: 44px;
+    width: 100%;
+    display: block;
+  }
+
+  /* ===== "How to get this key" floating help ===== */
+  .key-help-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 18px; height: 18px;
+    border-radius: 9999px;
+    color: var(--salesbuff-ink-soft);
+    border: 1.5px solid oklch(0.8 0.05 85);
+    background: white;
+    cursor: help;
+    transition: color 120ms, border-color 120ms;
+  }
+  .key-help-btn:hover { color: var(--salesbuff-ink); border-color: var(--salesbuff-ink); }
+  .key-help-pop {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 50;
+    width: 270px;
+    max-width: 80vw;
+    padding: 0.75rem 0.85rem;
+    background: white;
+    color: var(--salesbuff-ink);
+    border: 2px solid var(--salesbuff-ink);
+    border-radius: 10px;
+    box-shadow: 5px 5px 0 0 var(--salesbuff-ink);
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 400;
+  }
+  .key-help-title {
+    font-weight: 800;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--salesbuff-ink-soft);
+    margin-bottom: 0.4rem;
+  }
+  .key-help-steps {
+    list-style: decimal;
+    padding-left: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+  .key-help-steps code {
+    background: oklch(0.95 0.02 100);
+    border: 1px solid oklch(0.85 0.04 90);
+    border-radius: 4px;
+    padding: 0 0.25rem;
+    font-size: 0.75rem;
   }
 
   /* ===== Brand mark — black square with yellow letter ===== */

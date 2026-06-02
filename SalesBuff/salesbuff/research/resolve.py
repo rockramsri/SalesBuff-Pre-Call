@@ -45,7 +45,8 @@ class EntityResolver:
 
         try:
             data = await self.llm.json(
-                prompt_resolve_verify(rep_prompt), json.dumps(evidence, default=str)
+                prompt_resolve_verify(rep_prompt, anchors),
+                json.dumps(evidence, default=str),
             )
         except Exception as exc:  # noqa: BLE001
             logger.warning("Entity resolve verify failed: %s", exc)

@@ -8,35 +8,45 @@ import {
   UseWhenPill,
 } from "./Pills";
 import { CitationsPanel } from "./CitationsPanel";
+import { Linkified } from "./RichText";
 
 export function BriefCard({ card }: { card: BriefCardType }) {
   const [expanded, setExpanded] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const hasCitations = card.citations && card.citations.length > 0;
+  const hasMore = Boolean(card.detail || hasCitations);
 
-  const onClick = () => {
-    if (!expanded) setExpanded(true);
-    else if (hasCitations) setShowSources((s) => !s);
+  // Whole card toggles open/closed; sources have their own button below.
+  const toggle = () => {
+    setExpanded((e) => {
+      if (e) setShowSources(false);
+      return !e;
+    });
   };
 
   return (
     <article
       className="skeuo-card p-5 cursor-pointer text-left"
       data-expanded={expanded}
-      onClick={onClick}
+      onClick={toggle}
     >
       <header className="flex items-center justify-between gap-2 mb-3">
         <CategoryPill value={card.category} />
-        <ChevronDown
-          size={18}
-          className={`text-[var(--salesbuff-ink-soft)] transition-transform ${expanded ? "rotate-180" : ""}`}
-        />
+        {hasMore && (
+          <ChevronDown
+            size={18}
+            aria-label={expanded ? "Collapse" : "Expand"}
+            className={`text-[var(--salesbuff-ink-soft)] transition-transform ${expanded ? "rotate-180" : ""}`}
+          />
+        )}
       </header>
 
       <h3 className="font-display text-lg font-bold leading-tight text-[var(--salesbuff-ink)] mb-1.5">
         {card.title}
       </h3>
-      <p className="text-[0.95rem] text-[var(--salesbuff-ink)] leading-snug">{card.preview}</p>
+      <p className="text-[0.95rem] text-[var(--salesbuff-ink)] leading-snug">
+        <Linkified text={card.preview} />
+      </p>
 
       <div className="flex flex-wrap gap-1.5 mt-3">
         <ActionTypePill value={card.action_type} />
@@ -56,7 +66,9 @@ export function BriefCard({ card }: { card: BriefCardType }) {
       {expanded && (card.detail || hasCitations) && (
         <div className="mt-4 pt-4 border-t border-dashed border-[oklch(0.7_0.05_75/0.6)]">
           {card.detail && (
-            <p className="text-[0.95rem] leading-relaxed text-[var(--salesbuff-ink)]">{card.detail}</p>
+            <p className="text-[0.95rem] leading-relaxed text-[var(--salesbuff-ink)]">
+              <Linkified text={card.detail} />
+            </p>
           )}
 
           {hasCitations && (

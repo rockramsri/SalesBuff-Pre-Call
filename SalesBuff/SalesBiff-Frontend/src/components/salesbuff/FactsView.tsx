@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronDown, BookOpen } from "lucide-react";
 import type { FactFinding, FactsReport } from "@/lib/api/research.functions";
 import { CitationsPanel } from "./CitationsPanel";
+import { Linkified } from "./RichText";
 
 export function FactsView({ facts }: { facts: FactsReport }) {
   if (facts.sections.length === 0) {
@@ -67,7 +68,7 @@ function FactCard({ finding }: { finding: FactFinding }) {
         <div className="mt-4 pt-4 border-t border-dashed border-[oklch(0.7_0.05_75/0.6)]">
           {finding.detail && (
             <p className="text-[0.95rem] leading-relaxed text-[var(--salesbuff-ink)]">
-              {finding.detail}
+              <Linkified text={finding.detail} />
             </p>
           )}
           {hasCitations && (

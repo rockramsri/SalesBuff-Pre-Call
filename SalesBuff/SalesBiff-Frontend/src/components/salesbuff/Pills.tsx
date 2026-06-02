@@ -1,7 +1,6 @@
 import {
   type ActionType,
   type CardCategory,
-  type Confidence,
   type Priority,
   type UseWhen,
 } from "@/lib/api/research.functions";
@@ -41,9 +40,6 @@ export const PRIORITY_RANK: Record<Priority, number> = { high: 0, medium: 1, low
 
 export function PriorityPill({ value }: { value: Priority }) {
   return <span className={`pill pill-priority-${value}`}>{value} priority</span>;
-}
-export function ConfidencePill({ value }: { value: Confidence }) {
-  return <span className="pill pill-confidence">{value} confidence</span>;
 }
 export function CategoryPill({ value }: { value: CardCategory }) {
   return <span className="pill pill-category">{CATEGORY_LABEL[value]}</span>;

@@ -18,7 +18,7 @@ from salesbuff.domain.framing import sales_context_blurb
 from salesbuff.domain.queries import build_incumbent_legal_params, build_prospect_legal_params
 from salesbuff.metrics import get_metrics
 from salesbuff.models.brief import SalesBrief
-from salesbuff.models.entities import SalesContext
+from salesbuff.models.entities import MeetingMotion, SalesContext
 from salesbuff.models.findings import AllWebFindings, LitigationFindings
 from salesbuff.models.facts import FactsReport
 from salesbuff.research.brief import BriefBuilder
@@ -88,11 +88,13 @@ class Pipeline:
         prospect_task = self._legal_lane(
             build_prospect_legal_params(ctx), blurb, ctx.prospect.aliases
         )
+        # Incumbent legal is expensive and only relevant when actually displacing a
+        # competitor. Skip it for expansion/renewal/rescue/discovery motions.
         incumbent_task = (
             self._legal_lane(
                 build_incumbent_legal_params(ctx), blurb, ctx.incumbent.aliases
             )
-            if ctx.incumbent
+            if ctx.incumbent and ctx.meeting_motion == MeetingMotion.DISPLACEMENT
             else None
         )
 

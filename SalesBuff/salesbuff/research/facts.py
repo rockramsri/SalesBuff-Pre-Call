@@ -49,7 +49,7 @@ class FactsBuilder:
         for attempt in range(2):
             try:
                 data = await self.llm.json(system, user)
-                raw = FactFindingList.model_validate(data)
+                raw = FactFindingList.model_validate(_normalize_finding_keys(data))
                 break
             except (ValidationError, ValueError):
                 if attempt == 1:
@@ -108,6 +108,27 @@ class FactsBuilder:
             lines.append(f"{label}:")
             lines.extend(f"- {q}" for q in questions)
         return "\n".join(lines)
+
+
+def _normalize_finding_keys(data: object) -> object:
+    """Repair common LLM key drift so content isn't dropped on validation.
+
+    The model sometimes emits dotted keys like ``why_it.matters`` instead of
+    ``why_it_matters``; Pydantic would silently discard those. Map dots to
+    underscores on each finding's keys before validating.
+    """
+    if not isinstance(data, dict):
+        return data
+    findings = data.get("findings")
+    if not isinstance(findings, list):
+        return data
+    fixed = []
+    for finding in findings:
+        if isinstance(finding, dict):
+            fixed.append({key.replace(".", "_"): value for key, value in finding.items()})
+        else:
+            fixed.append(finding)
+    return {**data, "findings": fixed}
 
 
 def _subject(ctx: SalesContext) -> BriefSubject:

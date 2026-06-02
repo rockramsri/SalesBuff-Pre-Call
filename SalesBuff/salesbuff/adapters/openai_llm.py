@@ -83,15 +83,22 @@ class OpenAiLlmClient(LlmClient):
 
     @staticmethod
     def _log_usage(call: str, resp) -> None:
+        choice = (getattr(resp, "choices", None) or [None])[0]
+        finish = getattr(choice, "finish_reason", "?") if choice else "?"
+        refusal = getattr(getattr(choice, "message", None), "refusal", None) if choice else None
+        if refusal:
+            logger.warning("OpenAI %s refusal: %s", call, refusal)
         usage = getattr(resp, "usage", None)
         if usage is None:
+            logger.info("OpenAI %s done: finish_reason=%s (no usage)", call, finish)
             return
         logger.info(
-            "OpenAI %s usage (actual): prompt=%s completion=%s total=%s",
+            "OpenAI %s usage (actual): prompt=%s completion=%s total=%s finish_reason=%s",
             call,
             getattr(usage, "prompt_tokens", "?"),
             getattr(usage, "completion_tokens", "?"),
             getattr(usage, "total_tokens", "?"),
+            finish,
         )
 
     async def validate(self) -> None:

@@ -49,7 +49,7 @@ class Container:
             web_researcher=WebResearcher(deep),
             legal_researcher=LegalResearcher(legal_source),
             legal_enricher=LegalEnricher(deep, batch_size=cfg.legal_batch_size),
-            brief_builder=BriefBuilder(llm),
+            brief_builder=BriefBuilder(llm, sales_logic),
             facts_builder=FactsBuilder(llm, sales_logic),
             max_cases_per_entity=cfg.max_cases_per_entity,
         )
@@ -78,11 +78,6 @@ class Container:
             courtlistener_token=courtlistener or base.courtlistener_token,
         )
         return cls.from_config(cfg)
-
-    async def validate_keys(self) -> None:
-        """Raise if the configured OpenAI or Tavily key is unauthorized."""
-        await self.llm.validate()
-        await self.web_source.validate()
 
     async def aclose(self) -> None:
         await self.llm.aclose()

@@ -30,28 +30,54 @@ def prompt_resolve_query(rep_prompt: str) -> tuple[str, str]:
     return system, rep_prompt
 
 
-def prompt_resolve_verify(rep_prompt: str) -> str:
-    """Step 3: confirm canonical names, variants, and relationships from evidence."""
+def prompt_resolve_verify(rep_prompt: str, anchors: dict | None = None) -> str:
+    """Step 3: confirm names, the meeting motion, and who (if anyone) to displace.
+
+    The key distinction: a vendor already in use at the buyer ("current_deployment")
+    is NOT automatically the "incumbent_vendor" to beat — and is never the seller.
+    """
+    anchors = anchors or {}
+    anchor_line = (
+        "FIRST-PASS EXTRACTION (treat as strong hints, correct only with clear evidence):\n"
+        f"- prospect: {anchors.get('prospect_name') or 'unknown'}\n"
+        f"- contact: {anchors.get('contact_name') or 'unknown'}\n"
+        f"- competitor to displace: {anchors.get('incumbent_name') or 'none found'}\n"
+        f"- seller company: {anchors.get('rep_company') or 'unknown'}\n"
+        f"- seller product: {anchors.get('rep_product') or 'unknown'}\n\n"
+    )
     return (
-        "You are validating the entities in a salesperson's request using web evidence.\n"
+        "You are validating a SALES MEETING context using web evidence — not doing generic "
+        "entity matching. Identify the buyer, the contact, the seller + product, the meeting "
+        "motion, what is already deployed, and who (if anyone) must be displaced.\n\n"
         f"REP REQUEST: {rep_prompt}\n\n"
-        "You will receive a JSON list of web results (title, url, content). Use them to "
-        "determine the CORRECT, official names of the prospect company, the contact person, "
-        "and the incumbent vendor, plus credible name variants for court-record search, and "
-        "confirm the relationship makes sense (e.g. the incumbent really serves the prospect's "
-        "category). Prefer official sources; if evidence is weak or contradictory, keep the "
-        "name as stated and note low confidence.\n\n"
+        f"{anchor_line}"
+        "You will receive a JSON list of web results (title, url, content).\n\n"
+        "HARD BUSINESS RULES (follow exactly):\n"
+        "- If the request mentions expansion, rollout, scale, broader adoption, pilot expansion, "
+        "or that the seller is ALREADY in use, then meeting_motion = \"expansion\".\n"
+        "- If the seller's own company is already used at the buyer, record it under "
+        "current_deployment.vendor — NOT as incumbent_vendor.\n"
+        "- incumbent_vendor means a DIFFERENT vendor being displaced in this meeting. It is "
+        "NEVER the seller. If there is no different competitor to beat, set incumbent_vendor = null.\n"
+        "- In an expansion/renewal/rescue motion, incumbent_vendor is usually null.\n"
+        "- If there is no single vendor to beat, leave incumbent_vendor null and capture "
+        "named_alternatives and/or the status_quo (e.g. manual notes, no tooling).\n"
+        "- aliases = legal-suffix/former-name variants of the SAME entity only — never a "
+        "same-named but different company.\n"
+        "- Prefer official buyer/seller pages and reputable press over personal sites or social.\n\n"
         "Reply ONLY as JSON:\n"
         "{\n"
         '  "prospect_company": {"name": str, "aliases": [str], "industry": str|null, "location": str|null, "domain": str|null},\n'
         '  "contact_person": {"full_name": str, "title": str|null, "company": str},\n'
-        '  "incumbent_vendor": {"name": str, "aliases": [str], "product_category": str|null}|null,\n'
-        '  "rep_product": str|null,\n'
         '  "rep_company": str|null,\n'
-        '  "note": str   // one line on credibility / disambiguation\n'
+        '  "rep_product": str|null,\n'
+        '  "meeting_motion": "expansion|displacement|renewal|rescue|discovery",\n'
+        '  "current_deployment": {"vendor": str|null, "scope": str|null, "evidence_note": str|null}|null,\n'
+        '  "incumbent_vendor": {"name": str, "aliases": [str], "product_category": str|null}|null,\n'
+        '  "named_alternatives": [str],\n'
+        '  "status_quo": str|null,\n'
+        '  "note": str\n'
         "}\n"
-        "aliases = legal-suffix variants (Inc, LLC, Corp, LP), former names, and common short "
-        "forms of the SAME entity only — never same-named but different companies. "
         "contact_person.full_name falls back to the prospect name if no person was given."
     )
 
@@ -119,50 +145,68 @@ def prompt_legal_deep_research(context: str, subject: str, cases_json: str) -> s
     )
 
 
-def prompt_card_brief(ctx: SalesContext) -> str:
-    """System prompt for the move-based, citation-grounded sales coach brief."""
-    incumbent_name = ctx.incumbent.name if ctx.incumbent else "the status quo / no decision"
+def prompt_card_brief(ctx: SalesContext, guardrails: str = "") -> str:
+    """System prompt for the move-based, citation-grounded sales coach brief.
+
+    Motion-aware: in an expansion (seller already deployed) it must NOT coach the
+    rep to attack their own product.
+    """
     product = ctx.rep_product or "the rep's solution"
     categories = ", ".join(c.value for c in BriefCategory)
-    return f"""You are a senior sales coach. A rep is about to pitch {product!r} to
-{ctx.prospect.name!r} (contact: {ctx.contact.full_name!r}, {ctx.contact.title or "unknown title"}).
-The vendor/alternative to beat is {incumbent_name!r}.
+    motion = ctx.meeting_motion.value
+    beat = _beat_line(ctx)
+    guard_block = f"\n{guardrails.strip()}\n" if guardrails.strip() else ""
+    return f"""You are a senior sales coach. A rep from {(ctx.rep_company or 'the seller')!r} is about
+to pitch {product!r} to {ctx.prospect.name!r} (contact: {ctx.contact.full_name!r}, {ctx.contact.title or "unknown title"}).
+Meeting motion: {motion}. {beat}
 
 SALES CONTEXT: {sales_context_blurb(ctx)}
-
-You are given verified FACTS (JSON). Each fact has a "url"; legal facts also carry a
-"sales_frame" (the rep-facing angle). Turn them into CONVERSATION MOVES the rep can use.
+{guard_block}
+You are given verified FACTS (JSON). Each web fact has a "url" and a "tier"
+(1=official, 2=trade press, 3=interview/talk, 4=review/social). Legal facts carry a
+"sales_frame". Turn them into CONVERSATION MOVES the rep can use.
 
 UNIT OF OUTPUT — one card per MOVE, not one card per fact:
 - A card is something the rep should SAY, ASK, SHOW, AVOID, or VERIFY in the meeting.
 - Multiple facts may support one move. Combine them; do not make a card per raw fact.
 - Usually produce 6-10 cards, ordered by how the call flows.
 
+MOTION RULES (critical):
+- expansion / renewal / rescue: the seller is ALREADY in the account. Focus on broader
+  adoption, new workflows/teams, proof for rollout, governance, and the next-step ask.
+  NEVER write a card that attacks, doubts, or raises reliability concerns about the seller's
+  own product. Do NOT treat the seller as the competitor.
+- displacement: focus on buyer pain, the named incumbent's gaps, proof, switching safety, next step.
+- discovery (no competitor): differentiate against the status quo / no-decision inertia.
+
 COVERAGE — include at least:
-- 1 opening_move (how to start with relevance)
-- 1 pain_hypothesis OR priority_signal (what is timely / what to diagnose)
-- 1 differentiation_angle OR proof_point (why change is safe/valuable)
-- 1 next_step (the concrete ask that advances the deal)
+- 1 opening_move, 1 pain_hypothesis OR priority_signal,
+  1 differentiation_angle OR proof_point, and 1 next_step.
 - Add rapport_hook, stakeholder_hint, objection_prep, watch_out only when supportable.
-- If there is no incumbent, differentiate against the status quo / no-decision path.
+
+CLAIM-SUPPORT RULES:
+- A source only supports claims about the entity/topic it actually describes. A buyer's
+  security incident shows the BUYER cares about security — it does NOT prove the seller is secure.
+- Allegations in lawsuits are allegations, not proven facts — frame them that way.
+- Tier-4 (review/social) facts are weak: use them only for watch_out / open_question or prep,
+  never as a standalone proof_point or differentiation_angle.
 
 CARD WRITING RULES:
-- "title": 4-8 words, keyword-first, literal, useful on its own (e.g. "Lead with renewal timing").
-  Never vague ("Company signal", "Potential concern").
+- "title": 4-8 words, keyword-first, literal, useful on its own. Never vague.
 - "preview": ONE standalone action line the rep can act on without opening details.
 - "talk_track": one or two exact sentences the rep can actually say.
-- "detail": the supporting evidence + why it matters (the "See more").
+- "detail": the supporting evidence + why it matters.
 - "action_type": one of say, ask, show, avoid, verify.
 - "use_when": one of opening, discovery, differentiation, objection, close, follow_up.
 
 HARD RULES (high-stakes — a wrong fact loses the deal):
 - Every card MUST include citations with "url" copied EXACTLY from a fact's "url". Never invent URLs.
-- Use source "web" for Tavily facts and "court_listener" for legal case facts.
+- Use source "web" for web facts and "court_listener" for legal case facts.
 - If you cannot support a card with a provided URL, DROP the card.
 - "opening_line" must restate your opening_move card — introduce NO new facts.
 - "next_step_line" must ask for a realistic next commitment.
 - open_question and rapport_hook cards may have zero citations; all others MUST have at least one.
-- Be direct and literal — not a diligence memo, not a legal memo. No numeric score, no speculation.
+- Do NOT output card ids or timestamps — the system assigns those.
 
 Categories (use exactly these values): {categories}
 
@@ -177,7 +221,6 @@ Reply ONLY as JSON:
   "next_step_line": "the concrete next step to ask for",
   "cards": [
     {{
-      "card_id": "card_1",
       "category": "opening_move",
       "action_type": "say",
       "use_when": "opening",
@@ -189,9 +232,19 @@ Reply ONLY as JSON:
       "confidence": "high|medium|low",
       "citations": [{{"source": "web|court_listener", "url": "exact-url", "title": "", "quote": ""}}]
     }}
-  ],
-  "generated_at": "ISO-8601 timestamp"
+  ]
 }}"""
+
+
+def _beat_line(ctx: SalesContext) -> str:
+    """One sentence telling the model what (if anything) to position against."""
+    if ctx.incumbent and ctx.incumbent.name and ctx.incumbent.name != ctx.rep_company:
+        return f"The competitor to displace is {ctx.incumbent.name!r}."
+    if ctx.current_deployment and ctx.current_deployment.vendor == ctx.rep_company:
+        return "The seller is already deployed here — this is about expanding, not winning the account."
+    if ctx.named_alternatives:
+        return f"Alternatives the buyer may weigh: {', '.join(ctx.named_alternatives)}."
+    return "There is no single competitor to beat — position against the status quo / no decision."
 
 
 def prompt_fact_brief(
@@ -207,8 +260,10 @@ organized for fast reference.
 
 SALES CONTEXT: {sales_context_blurb(ctx)}
 
-You are given verified FACTS (JSON). Each fact has a "url"; legal facts also carry a
-"sales_frame". Turn them into concise, sourced findings.
+You are given verified FACTS (JSON). Each web fact has a "url" and a "tier"
+(1=official, 2=trade press, 3=interview/talk, 4=review/social); legal facts carry a
+"sales_frame". Turn them into concise, sourced findings. Treat tier-4 facts as weak —
+use them only as open_questions or clearly-hedged notes, never as a strong claim.
 
 QUESTIONS THE DOSSIER SHOULD HELP ANSWER:
 {question_block}

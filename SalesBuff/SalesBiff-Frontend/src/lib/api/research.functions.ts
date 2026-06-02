@@ -90,7 +90,6 @@ export type ResearchStatus =
 function backendUrl(): string {
   return (
     process.env.SALESBUFF_API_URL ||
-    process.env.RELLA_API_URL ||
     "http://127.0.0.1:8000"
   ).replace(/\/$/, "");
 }

@@ -54,9 +54,18 @@ class SalesLogic:
         return cls(categories=categories, question_bank=questions, overlays=overlays)
 
     def questions_for(self, role: str) -> list[str]:
-        """Flat list of all questions for an entity role (across jobs)."""
+        """Flat list of all questions for an entity role (across jobs).
+
+        Coerces every entry to a clean string so a mis-shaped YAML item (e.g. an
+        unquoted ``key: value`` parsed as a dict) can never leak a Python repr
+        into the prompt.
+        """
         jobs = self.question_bank.get(role, {})
-        return [q for questions in jobs.values() for q in questions]
+        return [
+            _as_question(q)
+            for questions in jobs.values()
+            for q in (questions or [])
+        ]
 
     def compliance_overlay(self, vertical: str | None) -> str:
         """Guardrail text for the vertical; falls back to general_b2b."""
@@ -69,6 +78,16 @@ class SalesLogic:
                         return (spec.get("guardrails") or "").strip()
         general = overlays.get("general_b2b", {})
         return (general.get("guardrails") or "").strip()
+
+
+def _as_question(value: object) -> str:
+    """Render a question-bank entry as plain text, even if YAML parsed it oddly."""
+    if isinstance(value, str):
+        return value.strip()
+    if isinstance(value, dict):
+        # e.g. {"What decision criteria matter": "technical, economic, ..."}
+        return "; ".join(f"{k}: {v}" for k, v in value.items())
+    return str(value)
 
 
 def _read(path: Path) -> dict:
