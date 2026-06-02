@@ -26,4 +26,4 @@ services:
       - key: USAGE_CURRENT
         value: "0"
       - key: USAGE_MAX
-        value: "25"
+        value: "10"
