@@ -55,11 +55,15 @@ class WebResearcher:
             )
 
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        prospect = results[0] if not isinstance(results[0], Exception) else None
-        contact = results[1] if not isinstance(results[1], Exception) else None
-        incumbent = (
-            results[2]
-            if len(results) > 2 and not isinstance(results[2], Exception)
+        prospect: WebFindings | None = (
+            results[0] if not isinstance(results[0], BaseException) else None  # type: ignore[assignment]
+        )
+        contact: WebFindings | None = (
+            results[1] if not isinstance(results[1], BaseException) else None  # type: ignore[assignment]
+        )
+        incumbent: WebFindings | None = (
+            results[2]  # type: ignore[assignment]
+            if len(results) > 2 and not isinstance(results[2], BaseException)
             else None
         )
         return AllWebFindings(prospect=prospect, contact=contact, incumbent=incumbent)

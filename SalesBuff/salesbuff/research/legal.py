@@ -58,7 +58,7 @@ class LegalResearcher:
         max_results: int = 25,
         variants: list[str] | None = None,
     ) -> LitigationFindings:
-        names = list(dict.fromkeys([name, *(variants or [])]))
+        names: list[str] = list(dict.fromkeys([name, *(variants or [])]))
         end = datetime.now()
         start = end - timedelta(days=years_back * 365)
         start_s, end_s = start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
@@ -85,7 +85,7 @@ class LegalResearcher:
                     )
                     if not key or key in seen:
                         continue
-                    if not self._party_matches(nm, item.get("party", [])):
+                    if not self._party_matches(str(nm), item.get("party", [])):
                         continue
                     seen.add(key)
                     cases.append(LegalCase.from_result(item))

@@ -14,7 +14,7 @@ from salesbuff.domain.framing import get_sales_frame
 from salesbuff.domain.prompts import prompt_card_brief
 from salesbuff.domain.sales_logic import SalesLogic
 from salesbuff.domain.sources import source_tier
-from salesbuff.models.brief import BriefCard, BriefCategory, SalesBrief
+from salesbuff.models.brief import BriefCard, BriefCategory, CardActionType, SalesBrief, UseWhen
 from salesbuff.models.findings import AllWebFindings, LitigationFindings, WebFindings
 from salesbuff.ports.llm import LlmClient
 from salesbuff.utils import make_id
@@ -96,8 +96,8 @@ def _fallback_next_step(brief: SalesBrief) -> BriefCard | None:
         return None
     return BriefCard(
         category=BriefCategory.NEXT_STEP,
-        action_type="ask",
-        use_when="close",
+        action_type=CardActionType.ASK,
+        use_when=UseWhen.CLOSE,
         title="Lock the next step",
         preview=brief.next_step_line,
         talk_track=brief.next_step_line,

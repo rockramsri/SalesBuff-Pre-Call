@@ -10,7 +10,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from pydantic import BaseModel
 
@@ -106,7 +106,7 @@ class DeepResearcher:
                         result.get("content"), schema_model
                     )
                     if validated is not None:
-                        return validated
+                        return cast(T, validated)
                     self._record_failure(
                         f"Deep research validation failed ({label}, {request_id}): {err} | "
                         f"content_preview={_content_preview(result.get('content'))}"
