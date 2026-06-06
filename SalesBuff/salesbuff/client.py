@@ -59,7 +59,7 @@ class SalesBuff:
         tavily_api_key: str,
         courtlistener_token: str | None = None,
         openai_model: str = "gpt-4o-mini",
-        **options: object,
+        **options: Any,
     ) -> None:
         cfg = Config.create(
             openai_api_key=openai_api_key,
@@ -104,7 +104,7 @@ def research_once(
     tavily_api_key: str,
     courtlistener_token: str | None = None,
     openai_model: str = "gpt-4o-mini",
-    **options: object,
+    **options: Any,
 ) -> ResearchResult:
     """Synchronous one-shot: builds a client, runs once, and closes it.
 

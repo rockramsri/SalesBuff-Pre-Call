@@ -88,10 +88,7 @@ export type ResearchStatus =
   | { status: "not_found" };
 
 function backendUrl(): string {
-  return (
-    process.env.SALESBUFF_API_URL ||
-    "http://127.0.0.1:8000"
-  ).replace(/\/$/, "");
+  return (process.env.SALESBUFF_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
 }
 
 export interface Usage {
@@ -125,9 +122,7 @@ export const submitResearch = createServerFn({ method: "POST" })
       const body = (await res.json().catch(() => null)) as {
         detail?: { message?: string };
       } | null;
-      throw new Error(
-        body?.detail?.message ?? "Usage limit reached for due-diligence runs.",
-      );
+      throw new Error(body?.detail?.message ?? "Usage limit reached for due-diligence runs.");
     }
     if (!res.ok) {
       throw new Error(`Backend submit failed (${res.status})`);
@@ -136,13 +131,11 @@ export const submitResearch = createServerFn({ method: "POST" })
     return { request_id: json.request_id, usage: json.usage };
   });
 
-export const getUsage = createServerFn({ method: "GET" }).handler(
-  async (): Promise<Usage> => {
-    const res = await fetch(`${backendUrl()}/usage`);
-    if (!res.ok) throw new Error(`Backend usage failed (${res.status})`);
-    return (await res.json()) as Usage;
-  },
-);
+export const getUsage = createServerFn({ method: "GET" }).handler(async (): Promise<Usage> => {
+  const res = await fetch(`${backendUrl()}/usage`);
+  if (!res.ok) throw new Error(`Backend usage failed (${res.status})`);
+  return (await res.json()) as Usage;
+});
 
 export const getResearch = createServerFn({ method: "POST" })
   .inputValidator(z.object({ id: z.string().min(1) }))

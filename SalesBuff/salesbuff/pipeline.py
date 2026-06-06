@@ -102,12 +102,14 @@ class Pipeline:
         if incumbent_task is not None:
             tasks.append(incumbent_task)
 
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-        web = results[0] if not isinstance(results[0], Exception) else AllWebFindings()
-        prospect_legal = results[1] if not isinstance(results[1], Exception) else None
-        incumbent_legal = (
-            results[2]
-            if len(results) > 2 and not isinstance(results[2], Exception)
+        raw = await asyncio.gather(*tasks, return_exceptions=True)
+        web: AllWebFindings = raw[0] if not isinstance(raw[0], BaseException) else AllWebFindings()
+        prospect_legal: LitigationFindings | None = (
+            raw[1] if not isinstance(raw[1], BaseException) else None  # type: ignore[assignment]
+        )
+        incumbent_legal: LitigationFindings | None = (
+            raw[2]  # type: ignore[assignment]
+            if len(raw) > 2 and not isinstance(raw[2], BaseException)
             else None
         )
         return web, incumbent_legal, prospect_legal
@@ -140,8 +142,8 @@ class Pipeline:
             brief_task, facts_task, return_exceptions=True
         )
 
-        brief, dropped_cards = _unpack(brief_res, "Brief", default=(None, []))
-        facts, _dropped_facts = _unpack(facts_res, "Facts", default=(None, []))
+        brief, dropped_cards = _unpack(brief_res, "Brief", default=(None, []))  # type: ignore[misc]
+        facts, _dropped_facts = _unpack(facts_res, "Facts", default=(None, []))  # type: ignore[misc]
         if metrics:
             metrics.snapshot("briefing")
 

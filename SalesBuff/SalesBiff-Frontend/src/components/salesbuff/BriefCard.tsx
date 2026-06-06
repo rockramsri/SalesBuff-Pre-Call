@@ -1,12 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, BookOpen, MessageSquareQuote } from "lucide-react";
 import type { BriefCard as BriefCardType } from "@/lib/api/research.functions";
-import {
-  ActionTypePill,
-  CategoryPill,
-  PriorityPill,
-  UseWhenPill,
-} from "./Pills";
+import { ActionTypePill, CategoryPill, PriorityPill, UseWhenPill } from "./Pills";
 import { CitationsPanel } from "./CitationsPanel";
 import { Linkified } from "./RichText";
 
@@ -56,7 +51,10 @@ export function BriefCard({ card }: { card: BriefCardType }) {
 
       {card.talk_track && (
         <div className="mt-3 flex gap-2 items-start rounded-md bg-[oklch(0.96_0.03_95)] border border-[oklch(0.82_0.06_85)] px-3 py-2">
-          <MessageSquareQuote size={15} className="mt-0.5 shrink-0 text-[var(--salesbuff-ink-soft)]" />
+          <MessageSquareQuote
+            size={15}
+            className="mt-0.5 shrink-0 text-[var(--salesbuff-ink-soft)]"
+          />
           <p className="text-[0.9rem] italic leading-snug text-[var(--salesbuff-ink)]">
             “{card.talk_track}”
           </p>
@@ -74,7 +72,10 @@ export function BriefCard({ card }: { card: BriefCardType }) {
           {hasCitations && (
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); setShowSources((s) => !s); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowSources((s) => !s);
+              }}
               className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--salesbuff-ink-soft)] hover:text-[var(--salesbuff-ink)]"
             >
               <BookOpen size={13} />

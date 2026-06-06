@@ -8,7 +8,10 @@ import { PRIORITY_RANK } from "./Pills";
 const FLOW_SECTIONS: { title: string; categories: CardCategory[] }[] = [
   { title: "Open", categories: ["opening_move", "rapport_hook"] },
   { title: "Diagnose", categories: ["priority_signal", "pain_hypothesis", "stakeholder_hint"] },
-  { title: "Differentiate", categories: ["differentiation_angle", "proof_point", "objection_prep"] },
+  {
+    title: "Differentiate",
+    categories: ["differentiation_angle", "proof_point", "objection_prep"],
+  },
   { title: "Advance", categories: ["next_step"] },
   { title: "Watch-outs", categories: ["watch_out", "open_question"] },
 ];

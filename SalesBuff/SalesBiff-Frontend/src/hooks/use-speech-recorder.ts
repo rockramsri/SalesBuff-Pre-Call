@@ -1,14 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // Minimal Web Speech API typings
-interface SRResult { 0: { transcript: string }; isFinal: boolean }
-interface SREvent { resultIndex: number; results: { length: number; [i: number]: SRResult } }
+interface SRResult {
+  0: { transcript: string };
+  isFinal: boolean;
+}
+interface SREvent {
+  resultIndex: number;
+  results: { length: number; [i: number]: SRResult };
+}
 interface SRInstance {
-  lang: string; continuous: boolean; interimResults: boolean;
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
   onresult: ((e: SREvent) => void) | null;
   onerror: ((e: { error: string }) => void) | null;
   onend: (() => void) | null;
-  start: () => void; stop: () => void;
+  start: () => void;
+  stop: () => void;
 }
 type SRCtor = new () => SRInstance;
 
@@ -77,7 +86,10 @@ export function useSpeechRecorder() {
     setError(null);
     const w = window as unknown as { SpeechRecognition?: SRCtor; webkitSpeechRecognition?: SRCtor };
     const Ctor = w.SpeechRecognition || w.webkitSpeechRecognition;
-    if (!Ctor) { setError("Voice capture not supported in this browser. Type your scenario."); return; }
+    if (!Ctor) {
+      setError("Voice capture not supported in this browser. Type your scenario.");
+      return;
+    }
     finalRef.current = "";
     const rec = new Ctor();
     rec.lang = "en-US";
@@ -93,17 +105,26 @@ export function useSpeechRecorder() {
       setTranscript((finalRef.current + interim).trim());
     };
     rec.onerror = (ev) => setError(ev.error || "Voice error");
-    rec.onend = () => { setRecording(false); teardownMeter(); };
+    rec.onend = () => {
+      setRecording(false);
+      teardownMeter();
+    };
     recRef.current = rec;
     try {
       rec.start();
       setRecording(true);
       void setupMeter();
-    } catch (e) { setError(String(e)); }
+    } catch (e) {
+      setError(String(e));
+    }
   }, [setupMeter, teardownMeter]);
 
   const stop = useCallback(() => {
-    try { recRef.current?.stop(); } catch { /* noop */ }
+    try {
+      recRef.current?.stop();
+    } catch {
+      /* noop */
+    }
     setRecording(false);
     teardownMeter();
   }, [teardownMeter]);

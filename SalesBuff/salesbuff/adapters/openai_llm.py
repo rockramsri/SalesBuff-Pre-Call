@@ -8,10 +8,11 @@ import logging
 from openai import AsyncOpenAI
 
 try:
-    import tiktoken
+    import tiktoken as _tiktoken
 
     _HAS_TIKTOKEN = True
 except ImportError:  # pragma: no cover
+    _tiktoken = None  # type: ignore[assignment]
     _HAS_TIKTOKEN = False
 
 from salesbuff.metrics import bump
@@ -28,12 +29,12 @@ class OpenAiLlmClient(LlmClient):
 
     @staticmethod
     def _load_encoding(model: str):
-        if not _HAS_TIKTOKEN:
+        if not _HAS_TIKTOKEN or _tiktoken is None:
             return None
         try:
-            return tiktoken.encoding_for_model(model)
+            return _tiktoken.encoding_for_model(model)
         except Exception:  # noqa: BLE001
-            return tiktoken.get_encoding("cl100k_base")
+            return _tiktoken.get_encoding("cl100k_base")
 
     def _count_tokens(self, *parts: str) -> int | None:
         if self._encoding is None:

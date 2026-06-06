@@ -27,7 +27,7 @@ jobs:
         run: pip install -e ".[precall,api,tokens]" ruff pyright build
 
       - name: Lint (ruff)
-        run: ruff check salesbuff/
+        run: ruff check salesbuff/ --config ruff.toml
 
       - name: Types (pyright)
         run: pyright salesbuff/

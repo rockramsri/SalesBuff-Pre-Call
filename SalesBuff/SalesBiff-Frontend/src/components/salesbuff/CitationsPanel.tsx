@@ -20,18 +20,26 @@ export function CitationsPanel({ citations }: { citations: Citation[] }) {
                 <Icon size={10} /> {label}
               </span>
               <div className="flex-1 min-w-0">
-                <a href={c.url} target="_blank" rel="noreferrer"
-                   onClick={(e) => e.stopPropagation()}
-                   title={c.url}
-                   className="inline-flex items-center gap-1 font-semibold text-[var(--salesbuff-ink)] hover:underline max-w-full">
+                <a
+                  href={c.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  title={c.url}
+                  className="inline-flex items-center gap-1 font-semibold text-[var(--salesbuff-ink)] hover:underline max-w-full"
+                >
                   <span className="truncate">{citationLabel(c)}</span>
                   <ExternalLink size={12} className="shrink-0" />
                 </a>
                 {c.title?.trim() && (
-                  <div className="text-[0.7rem] text-[var(--salesbuff-ink-soft)] truncate">{hostLabel(c.url)}</div>
+                  <div className="text-[0.7rem] text-[var(--salesbuff-ink-soft)] truncate">
+                    {hostLabel(c.url)}
+                  </div>
                 )}
                 {c.quote && (
-                  <p className="text-sm italic text-[var(--salesbuff-ink-soft)] mt-0.5">“{c.quote}”</p>
+                  <p className="text-sm italic text-[var(--salesbuff-ink-soft)] mt-0.5">
+                    “{c.quote}”
+                  </p>
                 )}
               </div>
             </li>

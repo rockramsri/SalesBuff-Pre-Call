@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 from salesbuff.metrics import bump, get_metrics
 from salesbuff.ports.sources import WebSource
@@ -122,7 +122,8 @@ class TavilyAdapter(WebSource):
 
         try:
             bump("tavily_research_submit")
-            return await self._client.research(**kwargs) or {}
+            result = await self._client.research(**kwargs)
+            return cast("dict[str, Any]", result) if result else {}
         except Exception as exc:  # noqa: BLE001
             msg = f"Tavily research submit failed: {exc}"
             logger.warning(msg)

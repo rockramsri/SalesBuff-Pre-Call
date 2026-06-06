@@ -4,7 +4,11 @@ export function RecordButton({
   recording,
   onClick,
   disabled,
-}: { recording: boolean; onClick: () => void; disabled?: boolean }) {
+}: {
+  recording: boolean;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
   return (
     <button
       type="button"

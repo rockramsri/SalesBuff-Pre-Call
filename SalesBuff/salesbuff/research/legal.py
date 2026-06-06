@@ -18,10 +18,13 @@ from salesbuff.ports.sources import LegalSource
 from salesbuff.research.deep import DeepResearcher
 
 try:
-    from rapidfuzz import fuzz, process
+    from rapidfuzz import fuzz as _fuzz
+    from rapidfuzz import process as _process
 
     _HAS_RAPIDFUZZ = True
 except ImportError:  # pragma: no cover
+    _fuzz = None  # type: ignore[assignment]
+    _process = None  # type: ignore[assignment]
     _HAS_RAPIDFUZZ = False
 
 
@@ -109,11 +112,11 @@ class LegalResearcher:
             return True
         norm = _normalize_name(name)
         norm_parties = [_normalize_name(p) for p in parties if p]
-        if not _HAS_RAPIDFUZZ:
+        if not _HAS_RAPIDFUZZ or _process is None or _fuzz is None:
             return any(norm and norm in p for p in norm_parties)
         if norm in norm_parties:
             return True
-        match = process.extractOne(norm, norm_parties, scorer=fuzz.token_set_ratio)
+        match = _process.extractOne(norm, norm_parties, scorer=_fuzz.token_set_ratio)
         return bool(match and match[1] >= self.fuzzy_threshold)
 
 
@@ -141,7 +144,7 @@ class LegalEnricher:
 
         kept: list[LegalCase] = []
         for batch, result in zip(batches, results, strict=False):
-            if isinstance(result, Exception) or result is None:
+            if isinstance(result, BaseException) or result is None:
                 kept.extend(batch)  # keep raw on failure rather than lose data
             else:
                 kept.extend(result)

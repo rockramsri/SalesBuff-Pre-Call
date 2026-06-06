@@ -1,7 +1,16 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Play, Sparkles, RotateCcw, Key, ChevronDown, Info, ExternalLink } from "lucide-react";
+import {
+  Loader2,
+  Play,
+  Sparkles,
+  RotateCcw,
+  Key,
+  ChevronDown,
+  Info,
+  ExternalLink,
+} from "lucide-react";
 
 import { useSpeechRecorder } from "@/hooks/use-speech-recorder";
 import { RecordButton } from "@/components/salesbuff/RecordButton";
@@ -22,9 +31,16 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "SalesBuff — Pre-call due diligence in one click" },
-      { name: "description", content: "Speak your account scenario, edit the transcript, and get an actionable sales brief in seconds." },
+      {
+        name: "description",
+        content:
+          "Speak your account scenario, edit the transcript, and get an actionable sales brief in seconds.",
+      },
       { property: "og:title", content: "SalesBuff — Pre-call due diligence" },
-      { property: "og:description", content: "One-shot account research for sales reps. Speak, edit, run." },
+      {
+        property: "og:description",
+        content: "One-shot account research for sales reps. Speak, edit, run.",
+      },
     ],
   }),
   component: SalesBuffApp,
@@ -33,7 +49,15 @@ export const Route = createFileRoute("/")({
 type Phase = "idle" | "submitting" | "polling" | "ready" | "error";
 
 function SalesBuffApp() {
-  const { recording, transcript, setTranscript, start, stop, error: micError, analyserRef } = useSpeechRecorder();
+  const {
+    recording,
+    transcript,
+    setTranscript,
+    start,
+    stop,
+    error: micError,
+    analyserRef,
+  } = useSpeechRecorder();
   const submit = useServerFn(submitResearch);
   const fetchJob = useServerFn(getResearch);
   const fetchUsage = useServerFn(getUsage);
@@ -71,7 +95,8 @@ function SalesBuffApp() {
   const clearTimers = () => {
     if (pollRef.current) clearInterval(pollRef.current);
     if (tickRef.current) clearInterval(tickRef.current);
-    pollRef.current = null; tickRef.current = null;
+    pollRef.current = null;
+    tickRef.current = null;
   };
 
   useEffect(() => () => clearTimers(), []);
@@ -79,17 +104,23 @@ function SalesBuffApp() {
   const run = useCallback(async () => {
     if (!transcript.trim()) return;
     if (recording) stop();
-    setErrorMsg(null); setBrief(null); setFacts(null); setTab("actions");
-    setElapsed(0); setStage("queued"); setProgress(0);
+    setErrorMsg(null);
+    setBrief(null);
+    setFacts(null);
+    setTab("actions");
+    setElapsed(0);
+    setStage("queued");
+    setProgress(0);
     setPhase("submitting");
     try {
-      const ownKeys = keys.openai.trim() && keys.tavily.trim()
-        ? {
-            openai: keys.openai.trim(),
-            tavily: keys.tavily.trim(),
-            courtlistener: keys.courtlistener.trim() || undefined,
-          }
-        : undefined;
+      const ownKeys =
+        keys.openai.trim() && keys.tavily.trim()
+          ? {
+              openai: keys.openai.trim(),
+              tavily: keys.tavily.trim(),
+              courtlistener: keys.courtlistener.trim() || undefined,
+            }
+          : undefined;
       const { request_id, usage: u } = await submit({
         data: { prompt: transcript.trim(), keys: ownKeys },
       });
@@ -140,8 +171,15 @@ function SalesBuffApp() {
 
   const reset = () => {
     clearTimers();
-    setBrief(null); setFacts(null); setTab("actions"); setRequestId(null); setErrorMsg(null);
-    setPhase("idle"); setElapsed(0); setStage("queued"); setProgress(0);
+    setBrief(null);
+    setFacts(null);
+    setTab("actions");
+    setRequestId(null);
+    setErrorMsg(null);
+    setPhase("idle");
+    setElapsed(0);
+    setStage("queued");
+    setProgress(0);
   };
 
   const isBusy = phase === "submitting" || phase === "polling";
@@ -209,7 +247,11 @@ function SalesBuffApp() {
             className="btn-yellow flex-1 justify-center md:flex-none"
             aria-label="Run due diligence"
           >
-            {isBusy ? <Loader2 className="animate-spin" size={18} /> : <Play size={18} fill="currentColor" />}
+            {isBusy ? (
+              <Loader2 className="animate-spin" size={18} />
+            ) : (
+              <Play size={18} fill="currentColor" />
+            )}
             <span className="whitespace-nowrap">Run due diligence</span>
           </button>
         </div>
@@ -221,7 +263,10 @@ function SalesBuffApp() {
       {/* Query zone */}
       <section className="mt-6 skeuo-panel p-5 md:p-6">
         <div className="flex items-center justify-between mb-3">
-          <label htmlFor="prompt" className="text-xs uppercase tracking-[0.2em] font-bold text-[oklch(0.78_0.08_85)]">
+          <label
+            htmlFor="prompt"
+            className="text-xs uppercase tracking-[0.2em] font-bold text-[oklch(0.78_0.08_85)]"
+          >
             Account scenario
           </label>
           <div className="text-xs text-muted-foreground">
@@ -236,12 +281,8 @@ function SalesBuffApp() {
           placeholder="e.g. Meeting with Dr. Sarah Chen at Mount Sinai tomorrow. They use McKesson today and I want to talk supply chain reliability."
           disabled={isBusy}
         />
-        {micError && (
-          <p className="mt-2 text-sm text-[oklch(0.8_0.15_60)]">{micError}</p>
-        )}
-        {errorMsg && (
-          <p className="mt-2 text-sm text-destructive">{errorMsg}</p>
-        )}
+        {micError && <p className="mt-2 text-sm text-[oklch(0.8_0.15_60)]">{micError}</p>}
+        {errorMsg && <p className="mt-2 text-sm text-destructive">{errorMsg}</p>}
         {blockedByLimit && !errorMsg && (
           <p className="mt-2 text-sm text-destructive">
             You've used all {usage?.limit} shared runs — add your own API keys below to continue.
@@ -257,24 +298,21 @@ function SalesBuffApp() {
             <Key size={13} />
             Use my own API keys
             {keysComplete && <span className="text-[oklch(0.55_0.15_150)]">• active</span>}
-            <ChevronDown size={14} className={`transition-transform ${keysOpen ? "rotate-180" : ""}`} />
+            <ChevronDown
+              size={14}
+              className={`transition-transform ${keysOpen ? "rotate-180" : ""}`}
+            />
           </button>
 
-          {keysOpen && (
-            <KeysPanel keys={keys} onChange={setKeys} disabled={isBusy} />
-          )}
+          {keysOpen && <KeysPanel keys={keys} onChange={setKeys} disabled={isBusy} />}
         </div>
       </section>
 
       {/* Status / Results */}
       <section className="mt-8 min-h-[160px]">
-        {phase === "idle" && (
-          <EmptyState />
-        )}
+        {phase === "idle" && <EmptyState />}
 
-        {isBusy && (
-          <ResearchingState elapsed={elapsed} stage={stage} progress={progress} />
-        )}
+        {isBusy && <ResearchingState elapsed={elapsed} stage={stage} progress={progress} />}
 
         {phase === "ready" && (brief || facts) && (
           <div className="space-y-6 animate-in fade-in duration-500">
@@ -335,7 +373,9 @@ function UsageBadge({ usage }: { usage: Usage }) {
         <span className="text-[0.6rem] uppercase tracking-wider font-bold text-muted-foreground">
           Runs left
         </span>
-        <span className={`font-display text-sm font-black ${out ? "text-destructive" : "text-foreground"}`}>
+        <span
+          className={`font-display text-sm font-black ${out ? "text-destructive" : "text-foreground"}`}
+        >
           {usage.remaining}
           <span className="text-muted-foreground font-normal">/{usage.limit}</span>
         </span>
@@ -402,7 +442,10 @@ const KEY_HELP: Record<keyof KeyState, ReactNode> = {
     <ol className="key-help-steps">
       <li>
         Sign in at{" "}
-        <HelpLink href="https://platform.openai.com/api-keys">platform.openai.com/api-keys</HelpLink>.
+        <HelpLink href="https://platform.openai.com/api-keys">
+          platform.openai.com/api-keys
+        </HelpLink>
+        .
       </li>
       <li>
         Click <b>Create new secret key</b> and copy the <code>sk-…</code> value (shown only once).
@@ -427,7 +470,8 @@ const KEY_HELP: Record<keyof KeyState, ReactNode> = {
     <ol className="key-help-steps">
       <li>
         Register or sign in:{" "}
-        <HelpLink href="https://www.courtlistener.com/sign-in/">courtlistener.com/sign-in</HelpLink>.
+        <HelpLink href="https://www.courtlistener.com/sign-in/">courtlistener.com/sign-in</HelpLink>
+        .
       </li>
       <li>
         Grab your token:{" "}
@@ -450,14 +494,12 @@ function KeysPanel({
   onChange: (k: KeyState) => void;
   disabled: boolean;
 }) {
-  const field = (
-    id: keyof KeyState,
-    label: string,
-    placeholder: string,
-    optional = false,
-  ) => (
+  const field = (id: keyof KeyState, label: string, placeholder: string, optional = false) => (
     <div className="space-y-1">
-      <label htmlFor={id} className="flex items-center gap-1.5 text-[0.7rem] uppercase tracking-wider font-bold text-muted-foreground">
+      <label
+        htmlFor={id}
+        className="flex items-center gap-1.5 text-[0.7rem] uppercase tracking-wider font-bold text-muted-foreground"
+      >
         <span>
           {label} {optional && <span className="font-normal normal-case">(optional)</span>}
         </span>
@@ -483,8 +525,8 @@ function KeysPanel({
       {field("tavily", "Tavily key", "tvly-...")}
       {field("courtlistener", "CourtListener token", "token", true)}
       <p className="sm:col-span-2 text-[0.7rem] text-muted-foreground">
-        Keys are kept in this browser tab only (never saved) and used just for your runs.
-        With your own keys, runs don't count against the shared limit.
+        Keys are kept in this browser tab only (never saved) and used just for your runs. With your
+        own keys, runs don't count against the shared limit.
       </p>
     </div>
   );
@@ -503,10 +545,18 @@ function TabSwitch({
   const idle = "text-[var(--salesbuff-ink-soft)] hover:text-[var(--salesbuff-ink)]";
   return (
     <div className="skeuo-inset p-1 flex gap-1 max-w-sm mx-auto">
-      <button type="button" onClick={() => onChange("actions")} className={`${base} ${tab === "actions" ? active : idle}`}>
+      <button
+        type="button"
+        onClick={() => onChange("actions")}
+        className={`${base} ${tab === "actions" ? active : idle}`}
+      >
         Actions
       </button>
-      <button type="button" onClick={() => onChange("facts")} className={`${base} ${tab === "facts" ? active : idle}`}>
+      <button
+        type="button"
+        onClick={() => onChange("facts")}
+        className={`${base} ${tab === "facts" ? active : idle}`}
+      >
         Facts
       </button>
     </div>
@@ -527,9 +577,7 @@ function NextStepCallout({ text }: { text: string }) {
 }
 
 function EmptyLane({ label }: { label: string }) {
-  return (
-    <div className="skeuo-panel p-8 text-center text-muted-foreground">{label}</div>
-  );
+  return <div className="skeuo-panel p-8 text-center text-muted-foreground">{label}</div>;
 }
 
 function EmptyState() {
@@ -539,8 +587,8 @@ function EmptyState() {
         Ready when you are
       </div>
       <p className="text-muted-foreground max-w-xl mx-auto">
-        Hit the amber button, describe the account in your own words, then run the brief.
-        SalesBuff returns a skim-ready stack of action tips plus a sourced fact dossier — no chat, no fluff.
+        Hit the amber button, describe the account in your own words, then run the brief. SalesBuff
+        returns a skim-ready stack of action tips plus a sourced fact dossier — no chat, no fluff.
       </p>
     </div>
   );
