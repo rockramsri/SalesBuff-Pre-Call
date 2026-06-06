@@ -96,7 +96,7 @@ class DeepResearcher:
                 )
                 return None
 
-            for poll in range(self.max_polls):
+            for _poll in range(self.max_polls):
                 await asyncio.sleep(self.poll_interval)
                 result = await self.source.get_research(request_id)
                 status = result.get("status")

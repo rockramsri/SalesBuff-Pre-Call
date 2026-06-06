@@ -1,5 +1,9 @@
 <!-- 🟡 SalesBuff -->
 
+[![CI](https://github.com/rockramsri/SalesBuff-Pre-Call/actions/workflows/ci.yml/badge.svg)](https://github.com/rockramsri/SalesBuff-Pre-Call/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/rockramsri/SalesBuff-Pre-Call/actions/workflows/codeql.yml/badge.svg)](https://github.com/rockramsri/SalesBuff-Pre-Call/actions/workflows/codeql.yml)
+[![Dependabot](https://img.shields.io/badge/Dependabot-enabled-brightgreen?logo=dependabot)](https://github.com/rockramsri/SalesBuff-Pre-Call/security/dependabot)
+
 # 🟡 SalesBuff — Pre-call due-diligence intelligence
 
 > Speak your account scenario, and SalesBuff hands a sales rep two things before

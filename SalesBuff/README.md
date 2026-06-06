@@ -26,6 +26,62 @@ Because a full run takes ~1–2 minutes, the API is **job-based**: submit, then 
 
 ---
 
+## Two ways to use it
+
+It's **one package** with feature extras you mix and match:
+
+| Install | You get |
+|---------|---------|
+| `pip install salesbuff` | Shared **core** — enough to call the SDK from your code. |
+| `pip install "salesbuff[precall]"` | The **pre-call due-diligence** feature (this product). |
+| `pip install "salesbuff[onfly]"` | Live on-the-fly insights *(planned)*. |
+| `pip install "salesbuff[api]"` | The **FastAPI** host layer + the `salesbuff-serve` command. |
+| `pip install "salesbuff[precall,api]"` | Pre-call **and** host it as an API. |
+| `pip install "salesbuff[all]"` | Everything. |
+
+> Extras are **additive** — they layer optional dependencies onto the core.
+> One `pip install` pulls the package and all the deps for the extras you pick;
+> there's no separate requirements step.
+
+### Host it from the terminal (no code)
+
+```bash
+pip install "salesbuff[api]"
+# set OPENAI_API_KEY + TAVILY_API_KEY in your env (or a .env), then:
+salesbuff-serve --port 8000        # defaults to $PORT or 8000
+```
+
+### As a library (SDK)
+
+```python
+from salesbuff import SalesBuff
+
+async with SalesBuff(openai_api_key="sk-...", tavily_api_key="tvly-...") as sb:
+    result = await sb.research("Meeting the VP of Ops at Acme Health next week...")
+    print(result.brief)   # Actions brief (or None)
+    print(result.facts)   # Facts dossier (or None)
+```
+
+One-shot synchronous helper (for scripts/notebooks):
+
+```python
+from salesbuff import research_once
+
+result = research_once(
+    "Expanding our rollout at Acme Health...",
+    openai_api_key="sk-...",
+    tavily_api_key="tvly-...",
+)
+```
+
+`courtlistener_token=...` is optional (enables court-record lookups). Advanced
+tuning (`research_concurrency`, `openai_model`, …) can be passed as keyword args.
+
+> The FastAPI service is just a thin host over this same SDK — both share one
+> engine, so they never drift.
+
+---
+
 ## Setup (local)
 
 Run everything from the `SalesBuff/` directory (the parent of the `salesbuff`
@@ -108,7 +164,7 @@ Use the blueprint at the repo root ([`../render.yaml`](../render.yaml)) or set
 manually:
 
 - **Root Directory:** `SalesBuff`
-- **Build:** `pip install -r salesbuff/requirements.txt`
+- **Build:** `pip install -r salesbuff/requirements.txt` *(or `pip install ".[api]"` — same result via `pyproject.toml`)*
 - **Start:** `uvicorn salesbuff.api:app --host 0.0.0.0 --port $PORT`
 - **Health check path:** `/health`
 - **Instances: 1** — the job store and usage counter live in memory, so multiple

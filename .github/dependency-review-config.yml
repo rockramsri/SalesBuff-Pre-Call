@@ -1,0 +1,2 @@
+# Block PRs that introduce deps with known HIGH or CRITICAL CVEs.
+fail-on-severity: high

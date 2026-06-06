@@ -6,6 +6,7 @@ from salesbuff.models.brief import CITATION_OPTIONAL, BriefCard, SalesBrief
 from salesbuff.models.findings import AllWebFindings, LitigationFindings
 from salesbuff.utils import normalize_url, strip_trailing_punctuation
 
+
 def collect_allowed_sources(
     web: AllWebFindings,
     incumbent_legal: LitigationFindings | None,

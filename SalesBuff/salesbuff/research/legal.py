@@ -13,7 +13,7 @@ import re
 from datetime import datetime, timedelta
 
 from salesbuff.domain.prompts import prompt_legal_deep_research
-from salesbuff.models.findings import LegalEnrichmentBatch, LegalCase, LitigationFindings
+from salesbuff.models.findings import LegalCase, LegalEnrichmentBatch, LitigationFindings
 from salesbuff.ports.sources import LegalSource
 from salesbuff.research.deep import DeepResearcher
 
@@ -140,7 +140,7 @@ class LegalEnricher:
         )
 
         kept: list[LegalCase] = []
-        for batch, result in zip(batches, results):
+        for batch, result in zip(batches, results, strict=False):
             if isinstance(result, Exception) or result is None:
                 kept.extend(batch)  # keep raw on failure rather than lose data
             else:

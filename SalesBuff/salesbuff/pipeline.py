@@ -11,16 +11,16 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 from salesbuff.domain.framing import sales_context_blurb
 from salesbuff.domain.queries import build_incumbent_legal_params, build_prospect_legal_params
 from salesbuff.metrics import get_metrics
 from salesbuff.models.brief import SalesBrief
 from salesbuff.models.entities import MeetingMotion, SalesContext
-from salesbuff.models.findings import AllWebFindings, LitigationFindings
 from salesbuff.models.facts import FactsReport
+from salesbuff.models.findings import AllWebFindings, LitigationFindings
 from salesbuff.research.brief import BriefBuilder
 from salesbuff.research.facts import FactsBuilder
 from salesbuff.research.legal import LegalEnricher, LegalResearcher

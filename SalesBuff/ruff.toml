@@ -1,0 +1,20 @@
+# Ruff config for the salesbuff package.
+target-version = "py310"
+line-length = 100
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes (unused imports, undefined names)
+    "I",   # isort (import order)
+    "UP",  # pyupgrade (modern Python idioms)
+    "B",   # flake8-bugbear (likely bugs)
+]
+ignore = [
+    "E501",  # line too long — handled by formatter
+    "B008",  # do not perform function call in default arguments (FastAPI uses this)
+]
+
+[lint.per-file-ignores]
+"salesbuff/__main__.py" = ["T201"]  # print statements OK in the CLI runner

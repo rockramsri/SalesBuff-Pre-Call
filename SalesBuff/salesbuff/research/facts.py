@@ -15,10 +15,10 @@ from salesbuff.domain.brief_rules import collect_allowed_sources, url_in_sources
 from salesbuff.domain.prompts import prompt_fact_brief
 from salesbuff.domain.sales_logic import SalesLogic
 from salesbuff.models.brief import BriefSubject
-from salesbuff.models.facts import FactFinding, FactFindingList, FactsReport, FactSection
+from salesbuff.models.facts import FactFinding, FactFindingList, FactSection, FactsReport
 from salesbuff.models.findings import AllWebFindings, LitigationFindings
-from salesbuff.research.brief import build_fact_pack
 from salesbuff.ports.llm import LlmClient
+from salesbuff.research.brief import build_fact_pack
 
 if TYPE_CHECKING:
     from salesbuff.models.entities import SalesContext

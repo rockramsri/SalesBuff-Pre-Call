@@ -5,15 +5,13 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
-import sys
 import textwrap
 
 from salesbuff.container import Container
-from salesbuff.metrics import UsageMetrics, current_metrics
 from salesbuff.domain.framing import get_sales_frame
+from salesbuff.metrics import UsageMetrics, current_metrics
 from salesbuff.models.brief import BriefCategory, SalesBrief
 from salesbuff.models.entities import SalesContext
-from salesbuff.models.findings import AllWebFindings, LitigationFindings
 from salesbuff.pipeline import PipelineResult, run_scenario
 
 # Human-readable label per category (e.g. "opening_move" -> "Opening move").

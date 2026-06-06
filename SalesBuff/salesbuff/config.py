@@ -41,6 +41,32 @@ class Config:
     usage_max: int = 25
 
     @classmethod
+    def create(
+        cls,
+        *,
+        openai_api_key: str,
+        tavily_api_key: str,
+        courtlistener_token: str | None = None,
+        openai_model: str = "gpt-4o-mini",
+        max_cases_per_entity: int = 8,
+        **overrides: object,
+    ) -> Config:
+        """Build a Config from explicit values (no environment needed).
+
+        Used by the SDK so callers can pass their own keys directly. Advanced
+        tuning fields (research_concurrency, etc.) can be passed via overrides.
+        """
+        values: dict[str, object] = {
+            "openai_api_key": openai_api_key,
+            "tavily_api_key": tavily_api_key,
+            "courtlistener_token": courtlistener_token,
+            "openai_model": openai_model,
+            "max_cases_per_entity": max_cases_per_entity,
+        }
+        values.update(overrides)
+        return cls(**values)  # type: ignore[arg-type]
+
+    @classmethod
     def from_env(cls, *, load_dotenv_file: bool = True) -> Config:
         if load_dotenv_file:
             load_dotenv(_PKG_DIR / ".env")

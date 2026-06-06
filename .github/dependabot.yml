@@ -1,0 +1,26 @@
+version: 2
+
+updates:
+  # Python backend — pyproject.toml
+  - package-ecosystem: pip
+    directory: /SalesBuff
+    schedule:
+      interval: weekly
+    groups:
+      backend-deps:
+        patterns: ["*"]
+
+  # Frontend — package.json
+  - package-ecosystem: npm
+    directory: /SalesBuff/SalesBiff-Frontend
+    schedule:
+      interval: weekly
+    groups:
+      frontend-deps:
+        patterns: ["*"]
+
+  # GitHub Actions — keep action versions fresh
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

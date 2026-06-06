@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  # ── Backend ────────────────────────────────────────────────────
+  backend:
+    name: Backend (Python)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: SalesBuff
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dev deps
+        run: pip install -e ".[precall,api,tokens]" ruff pyright build
+
+      - name: Lint (ruff)
+        run: ruff check salesbuff/
+
+      - name: Types (pyright)
+        run: pyright salesbuff/
+
+      - name: Import smoke-test
+        run: python -c "from salesbuff.api import app; from salesbuff import SalesBuff; print('import ok')"
+
+      - name: Packaging — wheel + YAML check
+        run: |
+          python -m build --wheel
+          python - <<'EOF'
+          import glob, zipfile
+          w = sorted(glob.glob("dist/*.whl"))[-1]
+          names = zipfile.ZipFile(w).namelist()
+          yamls = [n for n in names if n.endswith(".yaml")]
+          assert len(yamls) == 4, f"Expected 4 YAML files in wheel, got {yamls}"
+          assert any("salesbuff-serve" in n or "salesbuff_serve" in n or "entry_points" in n for n in names), "entry_points missing"
+          print(f"Wheel OK — {len(yamls)} YAML files packaged")
+          EOF
+
+      - name: Dependency review (PR only)
+        if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@v4
+        with:
+          config-file: ".github/dependency-review-config.yml"
+
+  # ── Frontend ───────────────────────────────────────────────────
+  frontend:
+    name: Frontend (Node)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: SalesBuff/SalesBiff-Frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: SalesBuff/SalesBiff-Frontend/package-lock.json
+
+      - name: Install (strict lockfile)
+        run: npm ci
+
+      - name: Lint (ESLint)
+        run: npm run lint
+
+      - name: Build (tsc + Vite)
+        run: npm run build

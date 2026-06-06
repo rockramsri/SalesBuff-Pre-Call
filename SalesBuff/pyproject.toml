@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "salesbuff"
+version = "0.1.0"
+description = "Pre-call due-diligence intelligence for sales reps — action tips + fact dossiers from one research pass."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "SalesBuff" }]
+keywords = ["sales", "due-diligence", "research", "llm", "openai", "tavily", "sdk"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Office/Business",
+]
+
+# Shared core — building blocks every mode reuses (LLM + search clients,
+# models, config, sales-logic loader). Enough to run the SDK.
+dependencies = [
+    "openai>=1.40.0",
+    "tavily-python>=0.7.25",
+    "httpx>=0.27.0",
+    "pydantic>=2.9.0",
+    "python-dotenv>=1.0.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# Feature: pre-call due diligence (the thorough resolve → research → brief flow).
+precall = ["rapidfuzz>=3.9.0"]
+# Feature: live on-the-fly insights (planned — reserved for future deps).
+onfly = []
+# Host the FastAPI service (adds `salesbuff-serve`): pip install "salesbuff[api]"
+api = ["fastapi>=0.115.0", "uvicorn>=0.30.0"]
+# Optional: accurate token counting in logs.
+tokens = ["tiktoken>=0.7.0"]
+# Everything.
+all = ["salesbuff[precall,onfly,api,tokens]"]
+
+[project.scripts]
+# One-line hosting from the terminal (requires the [api] extra).
+salesbuff-serve = "salesbuff.cli:serve"
+
+[project.urls]
+Homepage = "https://github.com/rockramsri/SalesBuff-Pre-Call"
+Repository = "https://github.com/rockramsri/SalesBuff-Pre-Call"
+
+[tool.setuptools.packages.find]
+include = ["salesbuff*"]
+
+[tool.setuptools.package-data]
+# Ship the editable sales-logic YAML and the env template inside the wheel —
+# SalesLogic.load() reads these at runtime, so they must be packaged.
+salesbuff = ["domain_logic_sales/**/*.yaml", "domain_logic_sales/**/*.md", ".env.example"]
