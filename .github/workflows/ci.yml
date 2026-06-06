@@ -16,7 +16,7 @@ jobs:
         working-directory: SalesBuff
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-python@v5
         with:
@@ -63,7 +63,7 @@ jobs:
         working-directory: SalesBuff/SalesBiff-Frontend
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:
