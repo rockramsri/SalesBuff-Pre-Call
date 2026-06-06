@@ -3,6 +3,7 @@
 [![CI](https://github.com/rockramsri/SalesBuff-Pre-Call/actions/workflows/ci.yml/badge.svg)](https://github.com/rockramsri/SalesBuff-Pre-Call/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/rockramsri/SalesBuff-Pre-Call/actions/workflows/codeql.yml/badge.svg)](https://github.com/rockramsri/SalesBuff-Pre-Call/actions/workflows/codeql.yml)
 [![Dependabot](https://img.shields.io/badge/Dependabot-enabled-brightgreen?logo=dependabot)](https://github.com/rockramsri/SalesBuff-Pre-Call/security/dependabot)
+[![PyPI](https://img.shields.io/pypi/v/salesbuff?color=yellow&label=pip%20install%20salesbuff)](https://pypi.org/project/salesbuff/)
 
 # 🟡 SalesBuff — Pre-call due-diligence intelligence
 
@@ -56,6 +57,51 @@ SalesBuff-Pre-Call/                ← this repo (git root)
 - **Frontend** — TanStack Start + Vite + React + Tailwind. Speak/type a scenario,
   run, and read the brief. See [`SalesBuff/SalesBiff-Frontend/README.md`](SalesBuff/SalesBiff-Frontend/README.md).
 - **Architecture deep-dive** — [`SalesBuff/ARCHITECTURE.md`](SalesBuff/ARCHITECTURE.md).
+
+---
+
+## 🟡 Python package — `salesbuff` on PyPI
+
+The engine is published as a standalone Python package so you can use it directly
+in your own code — no server needed.
+
+```bash
+pip install salesbuff                        # shared core
+pip install "salesbuff[precall]"             # + pre-call research feature
+pip install "salesbuff[precall,api]"         # + FastAPI host (run salesbuff-serve)
+pip install "salesbuff[all]"                 # everything
+```
+
+**What it does:**
+
+```python
+from salesbuff import SalesBuff
+
+async with SalesBuff(openai_api_key="sk-...", tavily_api_key="tvly-...") as sb:
+    result = await sb.research(
+        "Meeting the VP of Ops at Acme Health next week..."
+    )
+    print(result.brief)   # Actions coaching brief
+    print(result.facts)   # Evidence dossier
+```
+
+One-shot sync helper for scripts/notebooks:
+
+```python
+from salesbuff import research_once
+
+result = research_once("...", openai_api_key="sk-...", tavily_api_key="tvly-...")
+```
+
+**Host it yourself from the terminal** (no code needed):
+
+```bash
+pip install "salesbuff[precall,api]"
+# set OPENAI_API_KEY + TAVILY_API_KEY in your env, then:
+salesbuff-serve --port 8000
+```
+
+📦 [pypi.org/project/salesbuff](https://pypi.org/project/salesbuff/) · **Current version: 0.1.0**
 
 ---
 
