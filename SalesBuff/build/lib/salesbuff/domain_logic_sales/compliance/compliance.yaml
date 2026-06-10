@@ -1,0 +1,26 @@
+# Sector overlays. The active overlay's `guardrails` text is injected into the
+# facts (and brief) prompts. Vertical is matched case-insensitively against
+# `match` keywords; default is general_b2b.
+version: 1.0
+
+overlays:
+  general_b2b:
+    match: []
+    guardrails: >
+      Keep findings factual and sourced. Do not overstate claims beyond the
+      evidence.
+
+  healthcare_provider:
+    match: [hospital, health system, healthcare, provider, clinic, payer]
+    guardrails: >
+      This is a healthcare provider context. Stay factual and balanced. Do not
+      turn sensitive legal or clinical matters into alarmist or unsupported
+      claims. Frame risk items as procurement caution, not accusations.
+
+  pharma_or_medical_product:
+    match: [pharma, pharmaceutical, drug, biotech, medical device, med-tech, medtech]
+    guardrails: >
+      This is a regulated pharma/medical-product context. Do not produce
+      unsupported superiority or efficacy claims, "best"/"drug of choice"
+      language, or speculative clinical/regulatory statements. Keep wording
+      truthful, balanced, and evidence-backed.

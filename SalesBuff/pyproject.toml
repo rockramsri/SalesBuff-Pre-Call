@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "salesbuff"
-version = "0.1.0"
-description = "Pre-call due-diligence intelligence for sales reps — action tips + fact dossiers from one research pass."
+version = "0.2.0"
+description = "Pre-call due-diligence intelligence and On-fly live coaching for sales reps — action tips + fact dossiers from one research pass."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -33,7 +33,7 @@ dependencies = [
 [project.optional-dependencies]
 # Feature: pre-call due diligence (the thorough resolve → research → brief flow).
 precall = ["rapidfuzz>=3.9.0"]
-# Feature: live on-the-fly insights (planned — reserved for future deps).
+# Feature: live on-the-fly coaching (uses Core only — no precall deps).
 onfly = []
 # Host the FastAPI service (adds `salesbuff-serve`): pip install "salesbuff[api]"
 api = ["fastapi>=0.115.0", "uvicorn>=0.30.0"]

@@ -16,7 +16,7 @@ from pydantic import BaseModel
 
 from salesbuff.metrics import get_metrics
 from salesbuff.ports.sources import WebSource
-from salesbuff.research.schema import pydantic_to_tavily_schema, validate_research_detail
+from salesbuff.precall.schema import pydantic_to_tavily_schema, validate_research_detail
 
 logger = logging.getLogger(__name__)
 

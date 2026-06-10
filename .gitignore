@@ -20,6 +20,9 @@ node_modules/
 dist/
 dist-ssr/
 
+# On-Fly session logs (debug dumps)
+onfly_log/
+
 # OS / editor
 .DS_Store
 .idea/

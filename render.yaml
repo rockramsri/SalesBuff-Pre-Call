@@ -2,8 +2,8 @@
 # Assumes this repo's root is `SalesBuff-Pre-Call/`. If your git root is higher,
 # change `rootDir` to the path that contains the `salesbuff/` package.
 #
-# IMPORTANT: numInstances must stay 1 — the job store and the usage counter live
-# in memory, so multiple instances would split state and break polling/limits.
+# IMPORTANT: numInstances must stay 1 — the job store, usage counter, and live
+# On-fly sessions all live in memory; multiple instances would split state.
 services:
   - type: web
     name: salesbuff-backend
@@ -15,15 +15,61 @@ services:
     startCommand: uvicorn salesbuff.api:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
+      # --- Required secrets (set values in Render dashboard) ---
       - key: OPENAI_API_KEY
-        sync: false        # set in the Render dashboard (secret)
+        sync: false
       - key: TAVILY_API_KEY
-        sync: false        # set in the Render dashboard (secret)
+        sync: false
       - key: COURTLISTENER_TOKEN
-        sync: false        # optional; set if you have one
+        sync: false        # optional; court records for pre-call
+
+      # --- Core / pre-call defaults ---
       - key: OPENAI_MODEL
         value: gpt-4o-mini
       - key: USAGE_CURRENT
         value: "0"
       - key: USAGE_MAX
         value: "10"
+      - key: MAX_CASES_PER_ENTITY
+        value: "8"
+      - key: TAVILY_MAX_RESULTS
+        value: "5"
+      - key: TAVILY_SEARCH_DEPTH
+        value: basic
+      - key: LEGAL_BATCH_SIZE
+        value: "10"
+      - key: TAVILY_RESEARCH_MODEL
+        value: mini
+      - key: TAVILY_RESEARCH_CONCURRENCY
+        value: "6"
+      - key: TAVILY_RESEARCH_POLL_INTERVAL
+        value: "4.0"
+      - key: TAVILY_RESEARCH_MAX_POLLS
+        value: "60"
+      - key: TAVILY_RESEARCH_OUTPUT_LENGTH
+        value: standard
+
+      # --- On-fly live coaching (defaults work; override in dashboard if needed) ---
+      - key: ONFLY_TIP_MODEL
+        value: gpt-4o-mini
+      - key: ONFLY_COMPACTION_MODEL
+        value: gpt-4o-mini
+      - key: ONFLY_COMPACT_CHUNK_THRESHOLD
+        value: "10"
+      - key: ONFLY_COMPACT_TOKEN_THRESHOLD
+        value: "3000"
+      - key: ONFLY_SUMMARY_MAX_TOKENS
+        value: "3000"
+      - key: ONFLY_RAW_TAIL_CHUNKS
+        value: "3"
+      - key: ONFLY_REACTIVE_SEARCH_MAX
+        value: "3"
+      - key: ONFLY_DEEP_RESEARCH_MAX
+        value: "2"
+      - key: ONFLY_DEEP_MAX_QUERIES
+        value: "3"
+      - key: ONFLY_TIP_TYPE_WINDOW
+        value: "3"
+      - key: ONFLY_SESSION_LOG
+        value: "1"
+      # ONFLY_LOG_DIR — leave unset to use salesbuff/onfly_log/ on disk (ephemeral on Render)

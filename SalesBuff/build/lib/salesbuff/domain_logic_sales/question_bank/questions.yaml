@@ -1,0 +1,57 @@
+# Research question bank for the FACTS lane.
+# Keyed by entity role, then by conversation job. The facts prompt injects the
+# questions for the entities present so the dossier answers real sales questions.
+# Seeded from the (previously unused) domain/questions.py.
+version: 1.0
+
+prospect_company:
+  open:
+    - What public initiative, growth move, or strategic priority makes this conversation timely?
+    - Did they recently hire a C-suite/department head, merge, or get acquired?
+  diagnose:
+    - What pain, bottleneck, compliance pressure, or systems change suggests an opening?
+    - Are they hiring in the department we sell into, and what do the postings reveal?
+  differentiate:
+    - What outcomes or proof would matter to an evaluator inside this company?
+  advance:
+    - What next stakeholder or budget/RFP signal suggests a realistic next step?
+  guardrail:
+    - What sensitive or weakly-sourced item should stay prep-only?
+
+contact_person:
+  open:
+    - What is their mandate, tenure, recent promotion, or role change?
+    - What topics do they speak, post, or write about that the rep can reference?
+  diagnose:
+    - What KPI, initiative, or pain do they appear to own?
+  differentiate:
+    - What phrasing or priorities do they use that the rep can mirror credibly?
+  advance:
+    - Are they a user, influencer, champion, gatekeeper, or economic buyer?
+  guardrail:
+    - Is any rapport hook forced, trivial, or based on a same-named different person?
+
+incumbent_vendor:
+  open:
+    - What recent public issue with this vendor is timely to raise?
+  diagnose:
+    - What recurring complaints, support gaps, reliability or billing issues are public?
+  differentiate:
+    - What evidence suggests weak fit for this specific buyer context?
+    - What signals suggest renewal timing, dissatisfaction, or cost pressure?
+  advance:
+    - What proof is needed to make switching feel safe?
+  guardrail:
+    - Which negative signals are strong enough to use, and which are prep-only?
+
+cross_entity:
+  open:
+    - If there is no incumbent, what status-quo pain or inertia must be broken?
+  diagnose:
+    - "What decision criteria likely matter: technical, economic, relationship, risk, compliance?"
+  differentiate:
+    - If the buyer is comparing vendors, what proof should the rep be ready to show?
+  advance:
+    - Who signs, who influences, who blocks, and what next step is realistic?
+  guardrail:
+    - What claim would be stronger than the evidence supports?

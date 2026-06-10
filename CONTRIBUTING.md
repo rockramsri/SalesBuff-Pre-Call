@@ -37,8 +37,8 @@ npm run dev
 comments only for non-obvious *why*, never to narrate the code.
 
 ### Python (backend)
-- Keep the **ports/adapters** boundary: `research/` code depends on interfaces in
-  `ports/`, never directly on a vendor SDK. New providers = new adapter.
+- Keep the **ports/adapters** boundary: `precall/` and `onfly/` code depend on
+  interfaces in `ports/`, never directly on a vendor SDK. New providers = new adapter.
 - Prompts live in `domain/prompts.py` (pure strings). Editable sales logic lives
   in `domain_logic_sales/*.yaml` — change behavior there before touching code.
 - The model never owns server metadata (ids, timestamps) — the server assigns it.
@@ -46,7 +46,8 @@ comments only for non-obvious *why*, never to narrate the code.
 
 ### TypeScript (frontend)
 - The browser talks to the backend **only** through TanStack server functions in
-  `src/lib/api/`. Don't fetch the backend from client components.
+  `src/lib/api/` (`research.functions.ts`, `onfly.functions.ts`). Don't fetch the
+  backend from client components.
 - Reuse the `src/components/salesbuff/` building blocks and the yellow/ink theme
   tokens in `src/styles.css`.
 
@@ -90,8 +91,10 @@ Both hosts auto-deploy from `main` once connected.
 - Root Directory: `SalesBuff`
 - Build: `pip install -r salesbuff/requirements.txt`
 - Start: `uvicorn salesbuff.api:app --host 0.0.0.0 --port $PORT`
-- **Single instance** (in-memory job store + usage counter).
+- **Single instance** (in-memory job store, usage counter, and live On-fly sessions).
 - Secrets: `OPENAI_API_KEY`, `TAVILY_API_KEY`, optional `COURTLISTENER_TOKEN`.
+- On-fly tuning vars (`ONFLY_*`) have sensible defaults — see [`render.yaml`](render.yaml)
+  and `salesbuff/.env.example` if you need to override.
 - Blueprint: [`render.yaml`](render.yaml).
 
 ### Frontend → Vercel
@@ -101,7 +104,8 @@ Both hosts auto-deploy from `main` once connected.
 
 After merging to `main`, verify:
 1. Render `/health` returns `{"status":"ok"}`.
-2. The Vercel app loads and a test run returns a brief.
+2. The Vercel app loads and a **Pre-call** test run returns a brief.
+3. **On-fly**: start a live session, speak or use "Get tip now", and confirm tips stream in.
 
 ---
 

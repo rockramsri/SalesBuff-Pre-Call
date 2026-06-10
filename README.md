@@ -5,20 +5,22 @@
 [![Dependabot](https://img.shields.io/badge/Dependabot-enabled-brightgreen?logo=dependabot)](https://github.com/rockramsri/SalesBuff-Pre-Call/security/dependabot)
 [![PyPI](https://img.shields.io/pypi/v/salesbuff?color=yellow&label=pip%20install%20salesbuff)](https://pypi.org/project/salesbuff/)
 
-# 🟡 SalesBuff — Pre-call due-diligence intelligence
+# 🟡 SalesBuff — Pre-call intelligence + live coaching
 
-> Speak your account scenario, and SalesBuff hands a sales rep two things before
-> the call: **Action tips** (what to say, ask, show, avoid) and a **Fact dossier**
-> (what's verifiably true, with sources).
+> Speak your account scenario and SalesBuff helps before **and during** the call:
+> **Pre-call** turns a one-liner into citation-grounded **Action tips** and a
+> **Fact dossier**; **On-fly** streams real-time coaching moves as the conversation
+> unfolds.
 
-SalesBuff turns a one-line meeting description into a skim-ready pre-call brief.
-It resolves the real companies and people involved, researches them across the
-web and court records, and produces a **citation-grounded** brief — no chat, no
-fluff.
+SalesBuff resolves the real companies and people involved, researches them across
+the web (and court records for pre-call), and produces **citation-grounded**
+output — no chat, no fluff.
 
 ---
 
 ## What it does
+
+### Pre-call (before the meeting)
 
 You give it something like:
 
@@ -35,6 +37,21 @@ You give it something like:
 Both come from **one** shared research pass, so the two tabs always agree on the
 evidence.
 
+### On-fly (during the call)
+
+Start a live session with optional pre-call context, speak into the mic, and get
+**verb-first coaching tips** as the call progresses:
+
+- **Conversation memory** — compacts older transcript into a structured summary
+  while keeping a raw tail of recent speech.
+- **Bootstrap + reactive research** — enriches thin context at session start; mid-call
+  Tavily lookups (quick or deep multi-query) when the coach detects gaps (competitor,
+  objection, ROI proof, news).
+- **Stage-aware tips** — icebreaker → discovery → differentiation → close, with
+  dedup and quality filters so cards stay actionable, not generic.
+- **Session logs** — full JSON event trace dumped when the session ends (for tuning
+  and debugging).
+
 ---
 
 ## Repository layout
@@ -43,19 +60,21 @@ evidence.
 SalesBuff-Pre-Call/                ← this repo (git root)
 ├── README.md                      ← you are here
 ├── CONTRIBUTING.md                ← how to contribute / push / deploy
+├── CONTEXT.md                     ← domain glossary (pre-call + on-fly)
 ├── render.yaml                    ← Render blueprint for the backend
 └── SalesBuff/
     ├── README.md                  ← backend guide (Python / FastAPI)
-    ├── salesbuff/                 ← the Python package (the API + pipeline)
+    ├── salesbuff/                 ← the Python package (API + pipeline + on-fly)
     └── SalesBiff-Frontend/
         ├── README.md              ← frontend guide (TanStack Start)
         └── ...
 ```
 
-- **Backend** — Python + FastAPI. Entity resolution → web + legal research →
-  two LLM lanes (Actions + Facts). See [`SalesBuff/README.md`](SalesBuff/README.md).
-- **Frontend** — TanStack Start + Vite + React + Tailwind. Speak/type a scenario,
-  run, and read the brief. See [`SalesBuff/SalesBiff-Frontend/README.md`](SalesBuff/SalesBiff-Frontend/README.md).
+- **Backend** — Python + FastAPI. **Core** (LLM + search clients) shared by
+  **Pre-call** (resolve → research → brief) and **On-fly** (live coaching).
+  See [`SalesBuff/README.md`](SalesBuff/README.md).
+- **Frontend** — TanStack Start + Vite + React + Tailwind. Pre-call brief + On-fly
+  live coach in one app. See [`SalesBuff/SalesBiff-Frontend/README.md`](SalesBuff/SalesBiff-Frontend/README.md).
 - **Architecture deep-dive** — [`SalesBuff/ARCHITECTURE.md`](SalesBuff/ARCHITECTURE.md).
 
 ---
@@ -67,12 +86,13 @@ in your own code — no server needed.
 
 ```bash
 pip install salesbuff                        # shared core
-pip install "salesbuff[precall]"             # + pre-call research feature
+pip install "salesbuff[precall]"             # + pre-call due-diligence feature
+pip install "salesbuff[onfly]"               # + live coaching (Core only — no precall deps)
 pip install "salesbuff[precall,api]"         # + FastAPI host (run salesbuff-serve)
 pip install "salesbuff[all]"                 # everything
 ```
 
-**What it does:**
+**Pre-call SDK:**
 
 ```python
 from salesbuff import SalesBuff
@@ -101,7 +121,10 @@ pip install "salesbuff[precall,api]"
 salesbuff-serve --port 8000
 ```
 
-📦 [pypi.org/project/salesbuff](https://pypi.org/project/salesbuff/) · **Current version: 0.1.0**
+On-fly live coaching is exposed at `/onfly/*` when the API is running (see
+backend README for routes).
+
+📦 [pypi.org/project/salesbuff](https://pypi.org/project/salesbuff/) · **Current version: 0.2.0**
 
 ---
 
@@ -126,7 +149,8 @@ npm install
 npm run dev            # talks to http://127.0.0.1:8000 by default
 ```
 
-Open the printed local URL, describe an account, and hit **Run due diligence**.
+Open the printed local URL. Use **Pre-call** to run due diligence, or switch to
+**On-fly** for live coaching (mic + optional pre-call context).
 
 > 🟡 **No keys?** The UI also lets a user paste their **own** OpenAI + Tavily keys
 > (kept in the browser tab only) to run without touching the shared quota.
@@ -138,6 +162,8 @@ Open the printed local URL, describe an account, and hit **Run due diligence**.
 ```
 Browser ──► Frontend server fns ──► Backend API ──► OpenAI + Tavily + CourtListener
                 (SALESBUFF_API_URL)
+                     ├── /research/*   pre-call jobs
+                     └── /onfly/*       live coaching sessions
 ```
 
 The browser never calls the backend directly — TanStack server functions proxy

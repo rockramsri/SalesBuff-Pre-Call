@@ -15,7 +15,7 @@ from salesbuff.domain.framing import describe_entity, sales_context_blurb
 from salesbuff.domain.prompts import prompt_web_deep_research
 from salesbuff.models.entities import EntityRole
 from salesbuff.models.findings import AllWebFindings, EntityWebProfile, WebFindings, WebResult
-from salesbuff.research.deep import DeepResearcher
+from salesbuff.precall.deep import DeepResearcher
 
 if TYPE_CHECKING:
     from salesbuff.models.entities import SalesContext

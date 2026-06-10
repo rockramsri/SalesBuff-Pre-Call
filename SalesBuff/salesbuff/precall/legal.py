@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 from salesbuff.domain.prompts import prompt_legal_deep_research
 from salesbuff.models.findings import LegalCase, LegalEnrichmentBatch, LitigationFindings
 from salesbuff.ports.sources import LegalSource
-from salesbuff.research.deep import DeepResearcher
+from salesbuff.precall.deep import DeepResearcher
 
 try:
     from rapidfuzz import fuzz as _fuzz

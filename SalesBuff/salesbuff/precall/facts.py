@@ -18,7 +18,7 @@ from salesbuff.models.brief import BriefSubject
 from salesbuff.models.facts import FactFinding, FactFindingList, FactSection, FactsReport
 from salesbuff.models.findings import AllWebFindings, LitigationFindings
 from salesbuff.ports.llm import LlmClient
-from salesbuff.research.brief import build_fact_pack
+from salesbuff.precall.brief import build_fact_pack
 
 if TYPE_CHECKING:
     from salesbuff.models.entities import SalesContext
