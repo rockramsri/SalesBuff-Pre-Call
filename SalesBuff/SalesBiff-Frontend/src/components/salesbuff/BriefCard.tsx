@@ -36,10 +36,10 @@ export function BriefCard({ card }: { card: BriefCardType }) {
         )}
       </header>
 
-      <h3 className="text-[1.05rem] font-semibold leading-snug text-[var(--salesbuff-ink)] mb-1.5">
+      <h3 className="result-card-title text-[1.05rem] font-semibold leading-snug text-[var(--salesbuff-ink)] mb-1.5">
         {card.title}
       </h3>
-      <p className="text-[0.95rem] text-[var(--salesbuff-ink)] leading-snug">
+      <p className="result-card-body text-[0.95rem] text-[var(--salesbuff-ink)] leading-snug">
         <Linkified text={card.preview} />
       </p>
 
@@ -50,7 +50,7 @@ export function BriefCard({ card }: { card: BriefCardType }) {
       </div>
 
       {card.talk_track && (
-        <div className="mt-3 flex gap-2 items-start rounded-md bg-[var(--sb-quote-bg)] border border-[var(--sb-quote-border)] px-3 py-2">
+        <div className="mt-3 flex gap-2 items-start rounded-md talk-track bg-[var(--sb-quote-bg)] border border-[var(--sb-quote-border)] px-3 py-2">
           <MessageSquareQuote
             size={15}
             className="mt-0.5 shrink-0 text-[var(--salesbuff-ink-soft)]"

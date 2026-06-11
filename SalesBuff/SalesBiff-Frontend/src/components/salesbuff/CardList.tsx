@@ -41,7 +41,7 @@ export function CardList({ brief }: { brief: SalesBrief }) {
     <div className="space-y-8">
       {groups.map((g) => (
         <section key={g.title}>
-          <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-[var(--sb-eyebrow)] mb-3 flex items-center gap-3">
+          <h2 className="result-section-label text-xs uppercase tracking-[0.2em] font-bold text-[var(--sb-eyebrow)] mb-3 flex items-center gap-3">
             <span className="h-px flex-none w-6 bg-[var(--sb-hairline)]" />
             {g.title}
             <span className="text-[var(--salesbuff-ink-soft)] font-normal normal-case tracking-normal text-xs">

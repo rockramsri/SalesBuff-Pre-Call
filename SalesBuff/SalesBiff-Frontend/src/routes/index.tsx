@@ -502,7 +502,7 @@ function SalesBuffApp() {
             {isBusy && <ResearchingState elapsed={elapsed} stage={stage} progress={progress} />}
 
             {phase === "ready" && (brief || facts) && (
-              <div className="space-y-6 animate-in fade-in duration-500">
+              <div className="results-stack space-y-6 animate-in fade-in duration-500">
                 <div className="flex items-center justify-between gap-4 flex-wrap">
                   <div className="text-xs uppercase tracking-[0.2em] font-bold text-[var(--sb-eyebrow)] flex items-center gap-2">
                     <Sparkles size={14} /> Brief ready

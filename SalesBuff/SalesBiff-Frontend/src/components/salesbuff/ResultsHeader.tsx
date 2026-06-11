@@ -5,7 +5,7 @@ export function ResultsHeader({ brief }: { brief: SalesBrief }) {
   const { subject, opening_line } = brief;
   return (
     <section className="space-y-4">
-      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm">
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm results-subject">
         <Field label="Prospect" value={subject.prospect} />
         <Dot />
         <Field label="Contact" value={subject.contact} />
@@ -34,10 +34,10 @@ export function ResultsHeader({ brief }: { brief: SalesBrief }) {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <span>
-      <span className="text-[0.7rem] uppercase tracking-wider font-bold text-[var(--sb-eyebrow-strong)] mr-1.5">
+      <span className="result-field-label text-[0.7rem] uppercase tracking-wider font-bold text-[var(--sb-eyebrow-strong)] mr-1.5">
         {label}
       </span>
-      <span className="font-display text-lg font-bold text-[var(--sb-subject)]">{value}</span>
+      <span className="font-sans text-lg font-semibold text-[var(--sb-subject)]">{value}</span>
     </span>
   );
 }

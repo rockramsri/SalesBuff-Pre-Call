@@ -200,7 +200,7 @@
   --salesbuff-panel: #0e1928;
   --salesbuff-panel-raised: #14223a;
   --salesbuff-ink: #ffffff; /* text on the dark glass cards */
-  --salesbuff-ink-soft: #aab6c8;
+  --salesbuff-ink-soft: #b8c5d4;
 
   --background: #0a1322; /* dark fallback (avoids a white flash before paint) */
   --foreground: #ffffff;
@@ -334,7 +334,7 @@
   --salesbuff-panel: #ffffff;
   --salesbuff-panel-raised: #fffdfb;
   --salesbuff-ink: #1a1412;
-  --salesbuff-ink-soft: #6b5f58;
+  --salesbuff-ink-soft: #4a4038;
 
   --background: #f8f5f2;
   --foreground: #1a1412;
@@ -371,7 +371,7 @@
   --brand-ink: #3d2b26;
 
   --sb-eyebrow: #8a6f65;
-  --sb-eyebrow-strong: #6b5f58;
+  --sb-eyebrow-strong: #c73a20;
   --sb-hairline: rgba(26, 20, 18, 0.18);
   --sb-dashed: rgba(26, 20, 18, 0.12);
   --sb-field-bg: #ffffff;
@@ -380,7 +380,7 @@
   --sb-quote-border: rgba(232, 71, 42, 0.18);
   --sb-badge-bg: #f8f5f2;
   --sb-badge-border: rgba(26, 20, 18, 0.12);
-  --sb-callout-eyebrow: #8a6f65;
+  --sb-callout-eyebrow: #a63d28;
   --sb-callout-quote: rgba(232, 71, 42, 0.35);
   --sb-progress: linear-gradient(90deg, #e8472a, #f05a3a);
   --sb-progress-glow: rgba(232, 71, 42, 0.45);
@@ -1697,4 +1697,129 @@
 }
 [data-theme="ember"][data-recording="true"] header.skeuo-panel [class*="text-muted-foreground"] {
   color: rgba(255, 255, 255, 0.55);
+}
+
+/* ============================================================================
+   RESULT CARD READABILITY — scan-friendly typography on brief/facts output
+   ========================================================================== */
+
+/* Horizon: keep the whole results stack on dark glass so labels stay legible
+   across the navy→white page gradient. */
+[data-theme="horizon"] .results-stack {
+  padding: 1.25rem 1.25rem 1.5rem;
+  border-radius: 18px;
+  background: rgba(10, 19, 34, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: 0 16px 44px rgba(3, 8, 18, 0.38);
+  --sb-subject: #ffffff;
+}
+
+[data-theme="horizon"] .skeuo-card {
+  background: rgba(14, 25, 40, 0.94);
+}
+
+[data-theme="horizon"] .result-card-title,
+[data-theme="horizon"] .result-card-body {
+  color: #ffffff;
+}
+
+[data-theme="horizon"] .result-card-body {
+  font-weight: 500;
+}
+
+[data-theme="horizon"] .talk-track {
+  background: rgba(249, 115, 22, 0.16);
+  border-color: rgba(249, 115, 22, 0.45);
+}
+
+[data-theme="horizon"] .talk-track p {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+[data-theme="horizon"] .pill-priority-medium {
+  background: rgba(249, 115, 22, 0.32);
+  color: #ffffff;
+  border-color: rgba(249, 115, 22, 0.55);
+}
+
+/* Folio: sans titles, darker secondary copy, clearer quote wells. */
+[data-theme="folio"] {
+  --salesbuff-ink-soft: #52525b;
+}
+
+[data-theme="folio"] .result-card-title {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: #111827;
+}
+
+[data-theme="folio"] .result-card-body {
+  color: #1f2937;
+}
+
+[data-theme="folio"] .talk-track {
+  background: #ede9fe;
+  border-color: rgba(124, 58, 237, 0.28);
+}
+
+[data-theme="folio"] .talk-track p {
+  color: #111827;
+  font-weight: 500;
+}
+
+[data-theme="folio"] .skeuo-callout {
+  border-left: 3px solid var(--salesbuff-yellow);
+}
+
+/* Ember: stronger section/callout labels on cream; warm quote wells. */
+[data-theme="ember"] .result-section-label {
+  color: #5c4f47;
+  letter-spacing: 0.22em;
+}
+
+[data-theme="ember"] .result-field-label {
+  color: #a63d28;
+}
+
+[data-theme="ember"] .skeuo-callout {
+  background: #fff9f6;
+  border-left: 3px solid var(--salesbuff-yellow);
+}
+
+[data-theme="ember"] .result-card-body {
+  color: #1a1412;
+}
+
+[data-theme="ember"] .talk-track {
+  background: rgba(232, 71, 42, 0.08);
+  border-color: rgba(232, 71, 42, 0.28);
+}
+
+[data-theme="ember"] .talk-track p {
+  color: #1a1412;
+  font-weight: 500;
+}
+
+[data-theme="ember"] .pill-priority-medium {
+  background: rgba(232, 71, 42, 0.14);
+  color: #9a3412;
+  border-color: rgba(232, 71, 42, 0.32);
+}
+
+/* Prism: slightly denser glass so body copy stays crisp on the gradient. */
+[data-theme="prism"] .skeuo-card {
+  background: rgba(255, 255, 255, 0.54);
+}
+
+[data-theme="prism"] .talk-track {
+  background: rgba(255, 255, 255, 0.58);
+  border-color: rgba(36, 31, 46, 0.14);
+}
+
+[data-theme="prism"] .talk-track p {
+  color: #241f2e;
+  font-weight: 500;
 }
