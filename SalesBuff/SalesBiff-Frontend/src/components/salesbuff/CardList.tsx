@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import type { SalesBrief, CardCategory } from "@/lib/api/research.functions";
 import { BriefCard } from "./BriefCard";
-import { PRIORITY_RANK } from "./Pills";
+import { PRIORITY_RANK } from "./pill.constants";
 
 // The report's conversation-flow grouping: each call section holds a set of
 // move categories, rendered in call order.
@@ -41,8 +41,8 @@ export function CardList({ brief }: { brief: SalesBrief }) {
     <div className="space-y-8">
       {groups.map((g) => (
         <section key={g.title}>
-          <h2 className="font-display text-sm uppercase tracking-[0.2em] font-bold text-[oklch(0.78_0.08_85)] mb-3 flex items-center gap-3">
-            <span className="h-px flex-none w-6 bg-[oklch(0.55_0.1_70)]" />
+          <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-[var(--sb-eyebrow)] mb-3 flex items-center gap-3">
+            <span className="h-px flex-none w-6 bg-[var(--sb-hairline)]" />
             {g.title}
             <span className="text-[var(--salesbuff-ink-soft)] font-normal normal-case tracking-normal text-xs">
               {g.items.length} {g.items.length === 1 ? "card" : "cards"}

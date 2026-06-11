@@ -74,7 +74,7 @@ SalesBuff-Pre-Call/                ← this repo (git root)
   **Pre-call** (resolve → research → brief) and **On-fly** (live coaching).
   See [`SalesBuff/README.md`](SalesBuff/README.md).
 - **Frontend** — TanStack Start + Vite + React + Tailwind. Pre-call brief + On-fly
-  live coach in one app. See [`SalesBuff/SalesBiff-Frontend/README.md`](SalesBuff/SalesBiff-Frontend/README.md).
+  live coach in one app; five build-time UI themes (`VITE_THEME`). See [`SalesBuff/SalesBiff-Frontend/README.md`](SalesBuff/SalesBiff-Frontend/README.md).
 - **Architecture deep-dive** — [`SalesBuff/ARCHITECTURE.md`](SalesBuff/ARCHITECTURE.md).
 
 ---
@@ -176,7 +176,7 @@ to it, so the backend URL and any keys stay off the client.
 | Part | Host | Notes |
 |------|------|-------|
 | Backend | **Render** | Web service, **Root Directory = `SalesBuff`**. Blueprint in [`render.yaml`](render.yaml). Long jobs + in-memory state → keep **1 instance**. |
-| Frontend | **Vercel** | **Root Directory = `SalesBuff/SalesBiff-Frontend`**, Nitro `vercel` preset (set in `vite.config.ts`). Set `SALESBUFF_API_URL` to the Render URL. |
+| Frontend | **Vercel** | **Root Directory = `SalesBuff/SalesBiff-Frontend`**, Nitro `vercel` preset (set in `vite.config.ts`). Set `SALESBUFF_API_URL` to the Render URL. Set `VITE_THEME` per project (`sunrise`, `prism`, `horizon`, `folio`, or `ember`). |
 
 Full steps and env vars are in [`CONTRIBUTING.md`](CONTRIBUTING.md) and each
 sub-README.

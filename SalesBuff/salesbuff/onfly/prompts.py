@@ -21,7 +21,7 @@ def prompt_deal_brief(*, context_text: str) -> tuple[str, str]:
 Rules:
 - Only use facts present in the input. Leave fields empty if unknown. Do not invent.
 - proof_points: include ONLY concrete, citable stats/cases the SELLER can claim (from the input).
-- entity_aliases: likely speech-to-text misspellings → correct names (e.g. "brilla"→"Rilla",
+- entity_aliases: likely speech-to-text misspellings → correct names (e.g. "acme corp"→"Acme Corp",
   "Apple low"→"Apollo"). Infer from the real company names in the input.
 - Output JSON only.
 
@@ -89,7 +89,7 @@ Choose depth: "quick" = ONE lookup in research_query. "deep" = 2-3 angles in res
 Still give an immediate move now if useful; research only adds a later tip.
 
 --- EXAMPLE (a competitor is named — copy this shape) ---
-NEW CHUNK: "we already looked at Siro and we use Gong for our call centers"
+NEW CHUNK: "we already looked at Contoso and we use Gong for our call centers"
 OUTPUT:
 {{
   "stage": "discovery",
@@ -97,11 +97,11 @@ OUTPUT:
   "tip_type": "competitor",
   "action_sentence": "Acknowledge Gong, then contrast our in-person field-coaching focus.",
   "reason": "They named incumbents; differentiate before they anchor on them.",
-  "trigger": "prospect named Siro and Gong",
+  "trigger": "prospect named Contoso and Gong",
   "confidence": "high",
   "needs_research": true,
   "research_depth": "quick",
-  "research_query": "Siro vs Gong vs <seller> in-person field sales coaching differentiation",
+  "research_query": "Contoso vs Gong vs <seller> in-person field sales coaching differentiation",
   "research_queries": []
 }}
 --- END EXAMPLE ---

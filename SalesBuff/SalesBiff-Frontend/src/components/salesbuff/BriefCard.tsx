@@ -36,7 +36,7 @@ export function BriefCard({ card }: { card: BriefCardType }) {
         )}
       </header>
 
-      <h3 className="font-display text-lg font-bold leading-tight text-[var(--salesbuff-ink)] mb-1.5">
+      <h3 className="text-[1.05rem] font-semibold leading-snug text-[var(--salesbuff-ink)] mb-1.5">
         {card.title}
       </h3>
       <p className="text-[0.95rem] text-[var(--salesbuff-ink)] leading-snug">
@@ -50,7 +50,7 @@ export function BriefCard({ card }: { card: BriefCardType }) {
       </div>
 
       {card.talk_track && (
-        <div className="mt-3 flex gap-2 items-start rounded-md bg-[oklch(0.96_0.03_95)] border border-[oklch(0.82_0.06_85)] px-3 py-2">
+        <div className="mt-3 flex gap-2 items-start rounded-md bg-[var(--sb-quote-bg)] border border-[var(--sb-quote-border)] px-3 py-2">
           <MessageSquareQuote
             size={15}
             className="mt-0.5 shrink-0 text-[var(--salesbuff-ink-soft)]"
@@ -62,7 +62,7 @@ export function BriefCard({ card }: { card: BriefCardType }) {
       )}
 
       {expanded && (card.detail || hasCitations) && (
-        <div className="mt-4 pt-4 border-t border-dashed border-[oklch(0.7_0.05_75/0.6)]">
+        <div className="mt-4 pt-4 border-t border-dashed border-[var(--sb-dashed)]">
           {card.detail && (
             <p className="text-[0.95rem] leading-relaxed text-[var(--salesbuff-ink)]">
               <Linkified text={card.detail} />

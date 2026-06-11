@@ -1,23 +1,9 @@
 import type { ReactNode } from "react";
 import { ExternalLink } from "lucide-react";
-import type { Citation } from "@/lib/api/research.functions";
+
+import { hostLabel } from "@/lib/citation.utils";
 
 const URL_RE = /(https?:\/\/[^\s)]+)/g;
-
-/** A short, human-friendly label for a URL (its host, sans "www."). */
-export function hostLabel(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return url;
-  }
-}
-
-/** What to show for a citation: its title, else a crisp host label. */
-export function citationLabel(c: Citation): string {
-  const title = (c.title ?? "").trim();
-  return title || hostLabel(c.url);
-}
 
 /**
  * Renders text, replacing any raw URL with a crisp host-labelled link.
@@ -40,7 +26,7 @@ export function Linkified({ text }: { text: string }): ReactNode {
         target="_blank"
         rel="noreferrer"
         onClick={(e) => e.stopPropagation()}
-        className="inline-flex items-baseline gap-0.5 font-semibold text-[var(--salesbuff-ink)] underline decoration-[oklch(0.7_0.05_75)] underline-offset-2 hover:decoration-[var(--salesbuff-ink)]"
+        className="inline-flex items-baseline gap-0.5 font-semibold text-[var(--salesbuff-ink)] underline decoration-[var(--sb-dashed)] underline-offset-2 hover:decoration-[var(--salesbuff-ink)]"
       >
         {hostLabel(url)}
         <ExternalLink size={11} className="shrink-0 self-center" />

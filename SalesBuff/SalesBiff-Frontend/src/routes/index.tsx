@@ -17,6 +17,7 @@ import {
 
 import { useSpeechRecorder } from "@/hooks/use-speech-recorder";
 import { useLiveCoaching } from "@/hooks/use-live-coaching";
+import { BrandMark } from "@/components/salesbuff/BrandMark";
 import { RecordButton } from "@/components/salesbuff/RecordButton";
 import { VoiceBar } from "@/components/salesbuff/VoiceBar";
 import { ResultsHeader } from "@/components/salesbuff/ResultsHeader";
@@ -124,6 +125,18 @@ function SalesBuffApp() {
   };
 
   useEffect(() => () => clearTimers(), []);
+
+  // Flag recording on <html> so themes can shift the page background while the
+  // mic is live (e.g. prism turns grey, horizon desaturates the navy gradient).
+  useEffect(() => {
+    const el = document.documentElement;
+    if (recording) {
+      el.setAttribute("data-recording", "true");
+    } else {
+      el.removeAttribute("data-recording");
+    }
+    return () => el.removeAttribute("data-recording");
+  }, [recording]);
 
   const run = useCallback(async () => {
     if (!transcript.trim()) return;
@@ -303,13 +316,7 @@ function SalesBuffApp() {
       <header className="skeuo-panel px-4 md:px-7 py-4 md:py-5 flex flex-col gap-4 md:flex-row md:items-center md:gap-5">
         {/* Brand row (usage badge sits beside brand on mobile) */}
         <div className="flex items-center gap-3 min-w-0">
-          <img
-            src="/salesbuff-icon.png"
-            alt="SalesBuff"
-            width={44}
-            height={44}
-            className="brand-mark shrink-0"
-          />
+          <BrandMark className="brand-mark shrink-0" />
           <div className="min-w-0">
             <div className="font-display text-2xl md:text-[28px] font-black tracking-tight leading-none text-ink uppercase">
               SalesBuff
@@ -387,7 +394,7 @@ function SalesBuffApp() {
           <button
             type="button"
             onClick={() => setLiveInputOpen((o) => !o)}
-            className="flex w-full items-center justify-between text-xs uppercase tracking-[0.2em] font-bold text-[oklch(0.78_0.08_85)]"
+            className="flex w-full items-center justify-between text-xs uppercase tracking-[0.2em] font-bold text-[var(--sb-eyebrow)]"
           >
             <span>Live transcript &amp; context</span>
             <ChevronDown
@@ -403,13 +410,13 @@ function SalesBuffApp() {
             >
               <label
                 htmlFor="prompt"
-                className="text-xs uppercase tracking-[0.2em] font-bold text-[oklch(0.78_0.08_85)]"
+                className="text-xs uppercase tracking-[0.2em] font-bold text-[var(--sb-eyebrow)]"
               >
-                {mode === "precall" ? "Account scenario" : "Live transcript"}
+                {mode === "precall" ? "Sales scenario" : "Live transcript"}
               </label>
               <div className="text-xs text-muted-foreground">
                 {mode === "precall"
-                  ? "Speak your account scenario, then edit before running."
+                  ? "Speak your sales scenario, then edit before running."
                   : "Speak naturally. SalesBuff will coach from finalized chunks."}
               </div>
             </div>
@@ -434,7 +441,7 @@ function SalesBuffApp() {
               </p>
             )}
 
-            <div className="mt-4 border-t border-dashed border-[oklch(0.7_0.05_75/0.5)] pt-3">
+            <div className="mt-4 border-t border-dashed border-[var(--sb-dashed)] pt-3">
               <button
                 type="button"
                 onClick={() => setKeysOpen((o) => !o)}
@@ -497,7 +504,7 @@ function SalesBuffApp() {
             {phase === "ready" && (brief || facts) && (
               <div className="space-y-6 animate-in fade-in duration-500">
                 <div className="flex items-center justify-between gap-4 flex-wrap">
-                  <div className="text-xs uppercase tracking-[0.2em] font-bold text-[oklch(0.78_0.08_85)] flex items-center gap-2">
+                  <div className="text-xs uppercase tracking-[0.2em] font-bold text-[var(--sb-eyebrow)] flex items-center gap-2">
                     <Sparkles size={14} /> Brief ready
                     <span className="text-[var(--salesbuff-ink-soft)] normal-case tracking-normal font-normal">
                       · {new Date((brief ?? facts!).generated_at).toLocaleTimeString()}
@@ -567,23 +574,19 @@ function GitHubMark({ size = 20 }: { size?: number }) {
 }
 
 function ModeSwitch({ mode, onChange }: { mode: AppMode; onChange: (mode: AppMode) => void }) {
-  const base =
-    "flex-1 px-4 py-2.5 text-sm font-bold uppercase tracking-wider rounded-md transition-colors";
-  const active = "bg-[var(--salesbuff-ink)] text-[var(--salesbuff-yellow)]";
-  const idle = "text-[var(--salesbuff-ink-soft)] hover:text-[var(--salesbuff-ink)]";
   return (
     <div className="mt-4 skeuo-inset p-1 flex gap-1 max-w-md mx-auto">
       <button
         type="button"
         onClick={() => onChange("precall")}
-        className={`${base} ${mode === "precall" ? active : idle}`}
+        className={`seg ${mode === "precall" ? "active" : ""}`}
       >
         Pre-call
       </button>
       <button
         type="button"
         onClick={() => onChange("onfly")}
-        className={`${base} ${mode === "onfly" ? active : idle}`}
+        className={`seg ${mode === "onfly" ? "active" : ""}`}
       >
         On-fly
       </button>
@@ -637,7 +640,7 @@ function LiveSetupPanel({
   };
 
   return (
-    <div className="mt-5 border-t border-dashed border-[oklch(0.7_0.05_75/0.5)] pt-4 space-y-4">
+    <div className="mt-5 border-t border-dashed border-[var(--sb-dashed)] pt-4 space-y-4">
       <div className="text-xs font-bold uppercase tracking-wider text-[var(--salesbuff-ink-soft)]">
         Optional context — pick what to add
       </div>
@@ -688,7 +691,7 @@ function LiveSetupPanel({
         <input
           value={setup}
           onChange={(e) => onSetupChange(e.target.value)}
-          className="w-full rounded-md border-2 border-[oklch(0.8_0.05_85)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--salesbuff-ink)]"
+          className="w-full rounded-md border-2 border-[var(--sb-field-border)] bg-[var(--sb-field-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--salesbuff-ink)]"
           placeholder="What are you trying to accomplish on this call?"
           autoFocus
         />
@@ -712,7 +715,7 @@ function LiveSetupPanel({
         ref={consentRef}
         className={`flex gap-2 items-start text-sm text-[var(--salesbuff-ink)] rounded-md p-2 -mx-2 transition-shadow ${
           consentNudge
-            ? "consent-nudge ring-2 ring-[var(--salesbuff-yellow)] bg-[oklch(0.97_0.04_95)]"
+            ? "consent-nudge ring-2 ring-[var(--salesbuff-yellow)] bg-[var(--salesbuff-yellow)]/12"
             : ""
         }`}
       >
@@ -759,7 +762,7 @@ function ContextOptionCard({
     <button
       type="button"
       onClick={onClick}
-      className={`skeuo-card w-full text-left p-3 transition-all ${active ? "translate-x-[-1px] translate-y-[-1px]" : ""}`}
+      className={`skeuo-card glass-pill w-full text-left p-3 transition-all ${active ? "translate-x-[-1px] translate-y-[-1px]" : ""}`}
       data-expanded={active}
     >
       <div className="flex items-start gap-2">
@@ -790,7 +793,7 @@ function LiveCoachPanel({
 }) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-bold text-[oklch(0.78_0.08_85)]">
+      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-bold text-[var(--sb-eyebrow)]">
         <Sparkles size={14} />
         {isLive
           ? phase === "starting"
@@ -802,7 +805,7 @@ function LiveCoachPanel({
 
       {!isLive && tips.length === 0 ? (
         <div className="skeuo-panel p-8 text-center">
-          <div className="text-sm uppercase tracking-[0.2em] font-bold text-[oklch(0.78_0.08_85)] mb-2">
+          <div className="text-sm uppercase tracking-[0.2em] font-bold text-[var(--sb-eyebrow)] mb-2">
             Press “Start live coach” to begin
           </div>
           <p className="text-muted-foreground max-w-xl mx-auto">
@@ -812,7 +815,7 @@ function LiveCoachPanel({
         </div>
       ) : tips.length === 0 ? (
         <div className="skeuo-panel p-8 text-center">
-          <div className="text-sm uppercase tracking-[0.2em] font-bold text-[oklch(0.78_0.08_85)] mb-2">
+          <div className="text-sm uppercase tracking-[0.2em] font-bold text-[var(--sb-eyebrow)] mb-2">
             Waiting for a useful moment
           </div>
           <p className="text-muted-foreground max-w-xl mx-auto">
@@ -860,7 +863,7 @@ function LiveTipCard({ tip }: { tip: LiveTip }) {
         <p className="text-sm text-[var(--salesbuff-ink-soft)] mt-3">Trigger: {tip.trigger}</p>
       )}
       {tip.reason && (
-        <div className="mt-3 border-t border-dashed border-[oklch(0.7_0.05_75/0.4)] pt-2">
+        <div className="mt-3 border-t border-dashed border-[var(--sb-dashed)] pt-2">
           <button
             type="button"
             onClick={() => setReasonOpen((o) => !o)}
@@ -896,7 +899,7 @@ function UsageBadge({ usage }: { usage: Usage }) {
           Runs left
         </span>
         <span
-          className={`font-display text-sm font-black ${out ? "text-destructive" : "text-foreground"}`}
+          className={`font-display text-sm font-black ${out ? "text-destructive" : "text-ink"}`}
         >
           {usage.remaining}
           <span className="text-muted-foreground font-normal">/{usage.limit}</span>
@@ -907,9 +910,7 @@ function UsageBadge({ usage }: { usage: Usage }) {
           className="h-full transition-[width] duration-300"
           style={{
             width: `${pct}%`,
-            background: out
-              ? "oklch(0.62 0.24 28)"
-              : "linear-gradient(90deg, oklch(0.86 0.18 92), oklch(0.7 0.18 75))",
+            background: out ? "var(--destructive)" : "var(--sb-progress)",
           }}
         />
       </div>
@@ -1036,7 +1037,7 @@ function KeysPanel({
         value={keys[id]}
         onChange={(e) => onChange({ ...keys, [id]: e.target.value })}
         placeholder={placeholder}
-        className="w-full rounded-md border-2 border-[oklch(0.8_0.05_85)] bg-white px-3 py-2 text-sm font-mono outline-none focus:border-[var(--salesbuff-ink)]"
+        className="w-full rounded-md border-2 border-[var(--sb-field-border)] bg-[var(--sb-field-bg)] px-3 py-2 text-sm font-mono outline-none focus:border-[var(--salesbuff-ink)]"
       />
     </div>
   );
@@ -1061,23 +1062,19 @@ function TabSwitch({
   tab: "actions" | "facts";
   onChange: (t: "actions" | "facts") => void;
 }) {
-  const base =
-    "flex-1 px-4 py-2.5 text-sm font-bold uppercase tracking-wider rounded-md transition-colors";
-  const active = "bg-[var(--salesbuff-ink)] text-[var(--salesbuff-yellow)]";
-  const idle = "text-[var(--salesbuff-ink-soft)] hover:text-[var(--salesbuff-ink)]";
   return (
     <div className="skeuo-inset p-1 flex gap-1 max-w-sm mx-auto">
       <button
         type="button"
         onClick={() => onChange("actions")}
-        className={`${base} ${tab === "actions" ? active : idle}`}
+        className={`seg ${tab === "actions" ? "active" : ""}`}
       >
         Actions
       </button>
       <button
         type="button"
         onClick={() => onChange("facts")}
-        className={`${base} ${tab === "facts" ? active : idle}`}
+        className={`seg ${tab === "facts" ? "active" : ""}`}
       >
         Facts
       </button>
@@ -1088,7 +1085,7 @@ function TabSwitch({
 function NextStepCallout({ text }: { text: string }) {
   return (
     <div className="skeuo-callout p-4">
-      <div className="text-[0.7rem] uppercase tracking-[0.18em] font-bold text-[oklch(0.35_0.1_60)] mb-1">
+      <div className="text-[0.7rem] uppercase tracking-[0.18em] font-bold text-[var(--sb-callout-eyebrow)] mb-1">
         Ask for this next step
       </div>
       <p className="font-display text-lg leading-snug font-semibold text-[var(--salesbuff-ink)]">
@@ -1104,12 +1101,12 @@ function EmptyLane({ label }: { label: string }) {
 
 function EmptyState() {
   return (
-    <div className="skeuo-panel p-8 text-center">
-      <div className="text-sm uppercase tracking-[0.2em] font-bold text-[oklch(0.78_0.08_85)] mb-2">
+    <div className="skeuo-panel ready-panel p-8 text-center">
+      <div className="text-sm uppercase tracking-[0.2em] font-bold text-[var(--sb-eyebrow)] mb-2">
         Ready when you are
       </div>
       <p className="text-muted-foreground max-w-xl mx-auto">
-        Hit the amber button, describe the account in your own words, then run the brief. SalesBuff
+        Hit the record button, describe the account in your own words, then run the brief. SalesBuff
         returns a skim-ready stack of action tips plus a sourced fact dossier — no chat, no fluff.
       </p>
     </div>
@@ -1145,7 +1142,7 @@ function ResearchingState({
         {STAGE_LABEL[stage] ?? "Researching…"}
       </div>
       <p className="text-muted-foreground mt-2 text-sm">
-        Deep research runs across multiple sources — this can take a minute.{" "}
+        Deep research runs across multiple sources — this can take a couple of minutes.{" "}
         <span className="tabular-nums">{seconds}s</span>
       </p>
       <div className="mt-5 max-w-md mx-auto skeuo-inset h-2 overflow-hidden">
@@ -1153,9 +1150,9 @@ function ResearchingState({
           className="h-full"
           style={{
             width: `${width}%`,
-            background: "linear-gradient(90deg, oklch(0.86 0.18 92), oklch(0.7 0.18 75))",
+            background: "var(--sb-progress)",
             transition: "width 400ms ease",
-            boxShadow: "0 0 12px oklch(0.86 0.18 92 / 0.6)",
+            boxShadow: "0 0 12px var(--sb-progress-glow)",
           }}
         />
       </div>

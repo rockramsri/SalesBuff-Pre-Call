@@ -48,8 +48,8 @@ comments only for non-obvious *why*, never to narrate the code.
 - The browser talks to the backend **only** through TanStack server functions in
   `src/lib/api/` (`research.functions.ts`, `onfly.functions.ts`). Don't fetch the
   backend from client components.
-- Reuse the `src/components/salesbuff/` building blocks and the yellow/ink theme
-  tokens in `src/styles.css`.
+- Reuse the `src/components/salesbuff/` building blocks and theme tokens in
+  `src/styles.css` (`VITE_THEME` — see frontend README).
 
 ---
 
@@ -67,8 +67,7 @@ npx tsc --noEmit
 npm run lint
 ```
 
-> Note: `src/components/ui/form.tsx` has pre-existing type errors from the
-> template — those are not caused by your change.
+> Note: `src/components/ui/` was removed — the app uses custom `skeuo-*` CSS only.
 
 ---
 

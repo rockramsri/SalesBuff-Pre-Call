@@ -1,8 +1,7 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
-
-@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -31,26 +30,33 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-yellow: var(--salesbuff-yellow);
-  --color-yellow-deep: var(--salesbuff-yellow-deep);
-  --color-yellow-bright: var(--salesbuff-yellow-bright);
   --color-panel: var(--salesbuff-panel);
-  --color-panel-raised: var(--salesbuff-panel-raised);
   --color-ink: var(--salesbuff-ink);
   --color-ink-soft: var(--salesbuff-ink-soft);
   --font-display: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
 }
 
+/* ============================================================================
+   THEME TOKENS — driven by data-theme on <html> (see src/lib/theme.ts).
+   :root is the sunrise default so SSR + theme-less fallback render correctly.
+
+   The whole app reads these semantic tokens (`--salesbuff-*`, the shadcn
+   tokens, and the `--sb-*` accent tokens). Swapping the token values per theme
+   re-skins every component; structural look changes (glass vs solid vs flat)
+   live in the per-theme component overrides further down.
+   ========================================================================== */
+
 :root {
   --radius: 0.5rem;
 
-  /* SalesBuff palette — pure yellow stage, black ink, flat & bold */
-  --salesbuff-yellow: oklch(0.93 0.21 102); /* signature SalesBuff yellow */
+  /* ── SUNRISE — pure yellow stage, black ink, flat & bold ── */
+  --salesbuff-yellow: oklch(0.93 0.21 102); /* signature SalesBuff yellow / accent */
   --salesbuff-yellow-bright: oklch(0.96 0.2 102);
   --salesbuff-yellow-deep: oklch(0.82 0.2 95);
   --salesbuff-panel: oklch(1 0 0); /* white panels on yellow */
   --salesbuff-panel-raised: oklch(0.99 0.005 100);
-  --salesbuff-ink: oklch(0.16 0 0); /* near-black */
+  --salesbuff-ink: oklch(0.16 0 0); /* near-black: primary text + flat borders */
   --salesbuff-ink-soft: oklch(0.38 0 0);
 
   --background: oklch(0.93 0.21 102);
@@ -72,10 +78,337 @@
   --border: oklch(0.16 0 0);
   --input: oklch(0.16 0 0);
   --ring: oklch(0.16 0 0);
+
+  /* Page background — subtle warm radial so the yellow has depth, not a flat fill. */
+  --page-bg: radial-gradient(
+    ellipse 90% 60% at 50% -8%,
+    oklch(0.96 0.18 101) 0%,
+    var(--salesbuff-yellow) 62%
+  );
+
+  /* Accent / glow */
+  --accent-ring: oklch(0.82 0.2 95 / 0.35);
+  --accent-glow: 0 0 24px oklch(0.82 0.2 95 / 0.45);
+
+  /* Record button */
+  --btn-record-ring: var(--salesbuff-yellow-deep);
+  --btn-record-ring-rec: var(--destructive);
+
+  /* Recurring inline accents (kept identical to the original literals). */
+  --sb-eyebrow: oklch(0.78 0.08 85);
+  --sb-eyebrow-strong: oklch(0.72 0.05 85);
+  --sb-hairline: oklch(0.55 0.1 70);
+  --sb-dashed: oklch(0.7 0.05 75 / 0.6);
+  --sb-field-bg: oklch(1 0 0);
+  --sb-field-border: oklch(0.8 0.05 85);
+  --sb-quote-bg: oklch(0.96 0.03 95);
+  --sb-quote-border: oklch(0.82 0.06 85);
+  --sb-badge-bg: oklch(0.88 0.05 85);
+  --sb-badge-border: oklch(0.72 0.05 80);
+  --sb-callout-eyebrow: oklch(0.35 0.1 60);
+  --sb-callout-quote: oklch(0.45 0.12 60);
+  --sb-progress: linear-gradient(90deg, oklch(0.86 0.18 92), oklch(0.7 0.18 75));
+  --sb-progress-glow: oklch(0.86 0.18 92 / 0.6);
+  /* Subject line (prospect/contact/incumbent) color — themes override when the
+     bare-on-page text needs to read across a multi-tone gradient. */
+  --sb-subject: var(--foreground);
 }
 
-.dark {
-  color-scheme: light;
+/* ─── PRISM — orange→violet gradient stage, frosted glass for everything ───
+   Vivid orange→violet gradient BACKGROUND with translucent frosted-glass
+   surfaces (cards, buttons, pills, tabs, record) floating on top — the
+   gradient glows through every glass element. Text is dark charcoal. */
+[data-theme="prism"] {
+  --salesbuff-yellow: #f5a623; /* accent (marigold/amber) */
+  --salesbuff-yellow-bright: #ffb93d;
+  --salesbuff-yellow-deep: #c8740a;
+
+  /* Surfaces are translucent glass; "ink" = dark text that reads on them. */
+  --salesbuff-panel: #ffffff;
+  --salesbuff-panel-raised: #ffffff;
+  --salesbuff-ink: #241f2e;
+  --salesbuff-ink-soft: #574f5e;
+
+  --background: #e8c6b0; /* solid fallback behind the gradient */
+  --foreground: #241f2e;
+  --card: #ffffff;
+  --card-foreground: #241f2e;
+  --popover: #ffffff;
+  --popover-foreground: #241f2e;
+  --primary: #f5a623;
+  --primary-foreground: #241f2e;
+  --secondary: #ffffff;
+  --secondary-foreground: #241f2e;
+  --muted: #efe3e0;
+  --muted-foreground: #574f5e;
+  --accent: #f5a623;
+  --accent-foreground: #241f2e;
+  --destructive: #e23b1f; /* coral-orange stop/end accent */
+  --destructive-foreground: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --input: rgba(0, 0, 0, 0.12);
+  --ring: #f5a623;
+
+  /* The signature gradient: warm orange (top-left) → violet (bottom-right). */
+  --page-bg: linear-gradient(
+    150deg,
+    #f7a23b 0%,
+    #f6b45a 16%,
+    #f2c79a 34%,
+    #ddc3d2 56%,
+    #bda6dd 78%,
+    #9d8cd6 100%
+  );
+
+  --accent-ring: rgba(255, 255, 255, 0.55);
+  --accent-glow: 0 0 24px rgba(255, 255, 255, 0.45);
+  --btn-record-ring: rgba(255, 255, 255, 0.7);
+  --btn-record-ring-rec: rgba(245, 166, 35, 0.7);
+
+  /* Dark eyebrows so they read on the colorful gradient AND on the glass. */
+  --sb-eyebrow: #4a3a2a;
+  --sb-eyebrow-strong: #574f5e;
+  --sb-hairline: rgba(36, 31, 46, 0.3);
+  --sb-dashed: rgba(36, 31, 46, 0.14);
+  --sb-field-bg: rgba(255, 255, 255, 0.45);
+  --sb-field-border: rgba(255, 255, 255, 0.55);
+  --sb-quote-bg: rgba(255, 255, 255, 0.32);
+  --sb-quote-border: rgba(255, 255, 255, 0.5);
+  --sb-badge-bg: rgba(255, 255, 255, 0.4);
+  --sb-badge-border: rgba(255, 255, 255, 0.55);
+  --sb-callout-eyebrow: #4a3a2a;
+  --sb-callout-quote: rgba(36, 31, 46, 0.18);
+  --sb-progress: linear-gradient(90deg, #f5a623, #e23b1f);
+  --sb-progress-glow: rgba(245, 166, 35, 0.5);
+
+  /* prism-specific */
+  --accent-record: #e23b1f; /* coral recording dot */
+  --waveform: #6b3fa0; /* violet waveform bars on the frosted voice bar */
+  --pill-bg: rgba(255, 255, 255, 0.22);
+  --pill-border: rgba(255, 255, 255, 0.45);
+  --pill-blur: 16px;
+}
+
+/* ─── HORIZON — navy→white gradient, dark frosted-glass cards ────
+   Navy(top)→white(bottom) gradient stage with dark frosted glass cards and a
+   bold orange accent. Card text is white; bare-on-page labels/subject use orange
+   so they read on BOTH the navy top and the white bottom of the gradient. */
+[data-theme="horizon"] {
+  --salesbuff-yellow: #f97316; /* accent (orange) */
+  --salesbuff-yellow-bright: #fb923c;
+  --salesbuff-yellow-deep: #ea580c;
+  --salesbuff-panel: #0e1928;
+  --salesbuff-panel-raised: #14223a;
+  --salesbuff-ink: #ffffff; /* text on the dark glass cards */
+  --salesbuff-ink-soft: #aab6c8;
+
+  --background: #0a1322; /* dark fallback (avoids a white flash before paint) */
+  --foreground: #ffffff;
+  --card: #0e1928;
+  --card-foreground: #ffffff;
+  --popover: #0d1525;
+  --popover-foreground: #ffffff;
+  --primary: #f97316;
+  --primary-foreground: #ffffff;
+  --secondary: #0d1525;
+  --secondary-foreground: #ffffff;
+  --muted: #0f1a2b;
+  --muted-foreground: #aab6c8;
+  --accent: #f97316;
+  --accent-foreground: #ffffff;
+  --destructive: oklch(0.7 0.19 25);
+  --destructive-foreground: #060b14;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #f97316;
+
+  /* Signature navy → white vertical gradient (fixed: navy top, white bottom). */
+  --page-bg: linear-gradient(
+    180deg,
+    #0a1322 0%,
+    #0d1c33 20%,
+    #1a3050 42%,
+    #5a6c86 66%,
+    #b8c2d2 86%,
+    #eef1f5 100%
+  );
+
+  --accent-ring: rgba(249, 115, 22, 0.35);
+  --accent-glow: 0 0 28px rgba(249, 115, 22, 0.45);
+  --btn-record-ring: rgba(249, 115, 22, 0.45);
+  --btn-record-ring-rec: #fb923c;
+
+  --sb-subject: var(--salesbuff-yellow); /* names pop on both navy & white */
+  --sb-eyebrow: #fb923c;
+  --sb-eyebrow-strong: #fb923c;
+  --sb-hairline: rgba(249, 115, 22, 0.5);
+  --sb-dashed: rgba(255, 255, 255, 0.12);
+  --sb-field-bg: rgba(255, 255, 255, 0.06);
+  --sb-field-border: rgba(255, 255, 255, 0.14);
+  --sb-quote-bg: rgba(249, 115, 22, 0.1);
+  --sb-quote-border: rgba(249, 115, 22, 0.28);
+  --sb-badge-bg: rgba(255, 255, 255, 0.1);
+  --sb-badge-border: rgba(255, 255, 255, 0.2);
+  --sb-callout-eyebrow: #fb923c;
+  --sb-callout-quote: rgba(251, 146, 60, 0.4);
+  --sb-progress: linear-gradient(90deg, #f97316, #fbbf24);
+  --sb-progress-glow: rgba(249, 115, 22, 0.5);
+
+  --waveform: #f97316; /* orange waveform bars */
+}
+
+/* ─── FOLIO — white editorial stage, royal purple accent, serif headlines ─
+   Airy white page, purple CTAs, premium serif display type, flat white cards. */
+[data-theme="folio"] {
+  --salesbuff-yellow: #7c3aed;
+  --salesbuff-yellow-bright: #9333ea;
+  --salesbuff-yellow-deep: #6d28d9;
+  --salesbuff-panel: #ffffff;
+  --salesbuff-panel-raised: #fafafa;
+  --salesbuff-ink: #111827;
+  --salesbuff-ink-soft: #6b7280;
+
+  --background: #ffffff;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  --primary: #7c3aed;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f3ff;
+  --secondary-foreground: #111827;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  --accent: #7c3aed;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: rgba(17, 24, 39, 0.1);
+  --input: rgba(17, 24, 39, 0.12);
+  --ring: #7c3aed;
+
+  --page-bg: radial-gradient(
+    ellipse 85% 55% at 50% -8%,
+    rgba(124, 58, 237, 0.14) 0%,
+    #ffffff 58%
+  );
+
+  --accent-ring: rgba(124, 58, 237, 0.35);
+  --accent-glow: 0 0 28px rgba(124, 58, 237, 0.35);
+  --btn-record-ring: rgba(124, 58, 237, 0.45);
+  --btn-record-ring-rec: rgba(124, 58, 237, 0.65);
+
+  --brand-tile: #111827;
+  --brand-figure-mid: #ffffff;
+  --brand-figure-alt: #ffffff;
+  --brand-ink: #111827;
+
+  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+
+  --sb-eyebrow: #7c3aed;
+  --sb-eyebrow-strong: #6d28d9;
+  --sb-hairline: rgba(124, 58, 237, 0.35);
+  --sb-dashed: rgba(17, 24, 39, 0.12);
+  --sb-field-bg: #ffffff;
+  --sb-field-border: rgba(17, 24, 39, 0.12);
+  --sb-quote-bg: #f5f3ff;
+  --sb-quote-border: rgba(124, 58, 237, 0.2);
+  --sb-badge-bg: #ede9fe;
+  --sb-badge-border: rgba(124, 58, 237, 0.25);
+  --sb-callout-eyebrow: #6d28d9;
+  --sb-callout-quote: rgba(124, 58, 237, 0.35);
+  --sb-progress: linear-gradient(90deg, #7c3aed, #a855f7);
+  --sb-progress-glow: rgba(124, 58, 237, 0.45);
+
+  --waveform: #7c3aed;
+}
+
+/* ─── EMBER — warm cream page, chocolate recording theater, orange-red accent ─
+   Off-white paper background, deep brown voice/recording zone, bold vermillion
+   record button, clean sans-serif throughout. */
+[data-theme="ember"] {
+  --salesbuff-yellow: #e8472a;
+  --salesbuff-yellow-bright: #f05a3a;
+  --salesbuff-yellow-deep: #c73a20;
+  --salesbuff-panel: #ffffff;
+  --salesbuff-panel-raised: #fffdfb;
+  --salesbuff-ink: #1a1412;
+  --salesbuff-ink-soft: #6b5f58;
+
+  --background: #f8f5f2;
+  --foreground: #1a1412;
+  --card: #ffffff;
+  --card-foreground: #1a1412;
+  --popover: #ffffff;
+  --popover-foreground: #1a1412;
+  --primary: #e8472a;
+  --primary-foreground: #ffffff;
+  --secondary: #ffffff;
+  --secondary-foreground: #1a1412;
+  --muted: #efeae5;
+  --muted-foreground: #6b5f58;
+  --accent: #e8472a;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: rgba(26, 20, 18, 0.1);
+  --input: rgba(26, 20, 18, 0.12);
+  --ring: #e8472a;
+
+  --page-bg: #f8f5f2;
+  --theater-bg: #3d2b26;
+  --theater-ink: #ffffff;
+
+  --accent-ring: rgba(232, 71, 42, 0.4);
+  --accent-glow: 0 0 28px rgba(232, 71, 42, 0.4);
+  --btn-record-ring: rgba(232, 71, 42, 0.35);
+  --btn-record-ring-rec: rgba(255, 255, 255, 0.55);
+
+  --brand-tile: #3d2b26;
+  --brand-figure-mid: #ffffff;
+  --brand-figure-alt: #ffffff;
+  --brand-ink: #3d2b26;
+
+  --sb-eyebrow: #8a6f65;
+  --sb-eyebrow-strong: #6b5f58;
+  --sb-hairline: rgba(26, 20, 18, 0.18);
+  --sb-dashed: rgba(26, 20, 18, 0.12);
+  --sb-field-bg: #ffffff;
+  --sb-field-border: rgba(26, 20, 18, 0.12);
+  --sb-quote-bg: rgba(232, 71, 42, 0.06);
+  --sb-quote-border: rgba(232, 71, 42, 0.18);
+  --sb-badge-bg: #f8f5f2;
+  --sb-badge-border: rgba(26, 20, 18, 0.12);
+  --sb-callout-eyebrow: #8a6f65;
+  --sb-callout-quote: rgba(232, 71, 42, 0.35);
+  --sb-progress: linear-gradient(90deg, #e8472a, #f05a3a);
+  --sb-progress-glow: rgba(232, 71, 42, 0.45);
+
+  --accent-record: #ffffff;
+  --waveform: #ffffff;
+}
+
+/* ── Recording state: desaturate the page so it's obvious the mic is live.
+   data-recording is set on <html> by the app while recording. ── */
+[data-theme="prism"][data-recording="true"] {
+  --page-bg: linear-gradient(150deg, #dcdce1 0%, #cfced4 45%, #bfbdc6 100%);
+}
+[data-theme="horizon"][data-recording="true"] {
+  --page-bg: linear-gradient(
+    180deg,
+    #2a3340 0%,
+    #3a4453 28%,
+    #6b7488 56%,
+    #a9b0bd 82%,
+    #e7e9ed 100%
+  );
+}
+[data-theme="folio"][data-recording="true"] {
+  --page-bg: linear-gradient(150deg, #ececf2 0%, #dedee8 45%, #d0d0dc 100%);
+}
+[data-theme="ember"][data-recording="true"] {
+  --page-bg: linear-gradient(180deg, #e8e4df 0%, #d8d4cf 50%, #ccc8c3 100%);
 }
 
 @layer base {
@@ -85,7 +418,10 @@
 
   html,
   body {
-    background: var(--salesbuff-yellow);
+    background-color: var(--background);
+    background: var(--page-bg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     color: var(--color-foreground);
     font-family: var(--font-sans);
     min-height: 100vh;
@@ -136,6 +472,31 @@
     box-shadow: 6px 6px 0 0 var(--salesbuff-ink);
   }
 
+  /* ===== Segmented control (Pre-call/On-fly, Actions/Facts) ===== */
+  .seg {
+    flex: 1 1 0%;
+    padding: 0.625rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--salesbuff-ink-soft);
+    background: transparent;
+    cursor: pointer;
+    transition:
+      color 0.2s,
+      background 0.2s,
+      box-shadow 0.2s;
+  }
+  .seg:hover {
+    color: var(--salesbuff-ink);
+  }
+  .seg.active {
+    background: var(--salesbuff-ink);
+    color: var(--salesbuff-yellow);
+  }
+
   /* ===== Pills ===== */
   .pill {
     display: inline-flex;
@@ -152,17 +513,18 @@
   .pill-priority-high {
     background: oklch(0.62 0.24 28);
     color: white;
+    border-color: oklch(0.62 0.24 28);
   }
   .pill-priority-medium {
     background: var(--salesbuff-yellow);
     color: var(--salesbuff-ink);
   }
   .pill-priority-low {
-    background: white;
+    background: var(--salesbuff-panel);
     color: var(--salesbuff-ink);
   }
   .pill-confidence {
-    background: white;
+    background: var(--salesbuff-panel);
     color: var(--salesbuff-ink);
   }
   .pill-category {
@@ -187,6 +549,19 @@
     display: grid;
     place-items: center;
     cursor: pointer;
+  }
+  /* Living pulse ring (idle + recording) — sits behind the button. */
+  .record-btn::before {
+    content: "";
+    position: absolute;
+    inset: -7px;
+    border-radius: 9999px;
+    border: 2px solid var(--btn-record-ring);
+    animation: pulse-ring 2.4s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+    pointer-events: none;
+  }
+  .record-btn[data-recording="true"]::before {
+    border-color: var(--btn-record-ring-rec);
   }
   /* Smaller record button on phones so the top bar isn't crowded. */
   @media (max-width: 767px) {
@@ -289,7 +664,7 @@
     font-size: 0.85rem;
     font-weight: 700;
     color: var(--salesbuff-ink);
-    background: white;
+    background: var(--salesbuff-panel);
     border: 2px solid var(--salesbuff-ink);
     box-shadow: 3px 3px 0 0 var(--salesbuff-ink);
     cursor: pointer;
@@ -311,7 +686,7 @@
     width: 100%;
     min-height: 140px;
     resize: vertical;
-    background: white;
+    background: var(--sb-field-bg);
     color: var(--salesbuff-ink);
     padding: 1rem 1.1rem;
     border-radius: 10px;
@@ -400,7 +775,7 @@
     max-width: 80vw;
     padding: 0.75rem 0.85rem;
     background: white;
-    color: var(--salesbuff-ink);
+    color: oklch(0.16 0 0);
     border: 2px solid var(--salesbuff-ink);
     border-radius: 10px;
     box-shadow: 5px 5px 0 0 var(--salesbuff-ink);
@@ -441,6 +816,885 @@
     border: 2px solid var(--salesbuff-ink);
     object-fit: cover;
     display: block;
+    overflow: hidden;
     background: var(--salesbuff-ink);
   }
+
+  /* ===== Premium headline tracking (sunrise default) ===== */
+  .font-display {
+    letter-spacing: -0.02em;
+  }
+}
+
+/* ============================================================================
+   SHARED ANIMATIONS
+   ========================================================================== */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes glow-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 30px var(--btn-record-ring-rec);
+  }
+  50% {
+    box-shadow: 0 0 60px var(--btn-record-ring-rec);
+  }
+}
+
+/* ============================================================================
+   THEME-SPECIFIC STRUCTURAL OVERRIDES
+   Unlayered so they win over the @layer components base (sunrise) definitions.
+   ========================================================================== */
+
+/* ───────────────── PRISM (orange→violet gradient · glass everything) ───────
+   The page is a vivid orange→violet gradient (set on body via --page-bg). Every
+   surface is translucent frosted glass so the gradient glows through. Heavier
+   blur + saturate keeps text readable while staying see-through. Text is dark. */
+[data-theme="prism"] .skeuo-panel {
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 24px;
+  backdrop-filter: blur(26px) saturate(180%);
+  -webkit-backdrop-filter: blur(26px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 18px 50px rgba(60, 40, 70, 0.18);
+}
+
+[data-theme="prism"] .skeuo-card {
+  background: rgba(255, 255, 255, 0.46);
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 12px 38px rgba(60, 40, 70, 0.16);
+}
+[data-theme="prism"] .skeuo-card:hover,
+[data-theme="prism"] .skeuo-card[data-expanded="true"] {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.56);
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 18px 52px rgba(60, 40, 70, 0.24);
+}
+
+/* Opening-line callout — slightly clearer glass so the gradient reads through. */
+[data-theme="prism"] .skeuo-callout {
+  background: rgba(255, 255, 255, 0.38);
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 24px;
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 14px 44px rgba(60, 40, 70, 0.18);
+}
+
+/* Glass track/bar (tab containers, progress tracks). */
+[data-theme="prism"] .skeuo-inset {
+  background: rgba(255, 255, 255, 0.26);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Glass field. */
+[data-theme="prism"] .skeuo-textarea {
+  background: var(--sb-field-bg);
+  color: var(--salesbuff-ink);
+  border: 1px solid var(--sb-field-border);
+  border-radius: 14px;
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+}
+[data-theme="prism"] .skeuo-textarea::placeholder {
+  color: rgba(36, 31, 46, 0.5);
+}
+[data-theme="prism"] .skeuo-textarea:focus {
+  border-color: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+/* Segmented tabs: dark idle → frosted-white active pill with amber underline. */
+[data-theme="prism"] .seg {
+  color: var(--salesbuff-ink-soft);
+  border-radius: 999px;
+}
+[data-theme="prism"] .seg:hover {
+  color: var(--salesbuff-ink);
+}
+[data-theme="prism"] .seg.active {
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--salesbuff-ink);
+  box-shadow:
+    0 2px 10px rgba(60, 40, 70, 0.12),
+    inset 0 -2px 0 var(--salesbuff-yellow);
+}
+
+/* Glass pills — transparent, gradient shows through. */
+[data-theme="prism"] .glass-pill {
+  background: var(--pill-bg);
+  backdrop-filter: blur(var(--pill-blur)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--pill-blur)) saturate(160%);
+  border: 1px solid var(--pill-border);
+  border-radius: 999px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 4px 14px rgba(60, 40, 70, 0.12);
+  color: var(--salesbuff-ink);
+}
+[data-theme="prism"] .glass-pill.active,
+[data-theme="prism"] .glass-pill[data-expanded="true"] {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 8px 22px rgba(60, 40, 70, 0.18);
+}
+
+/* Record button — frosted glass circle, white ring + glyph; amber fill while
+   recording. */
+[data-theme="prism"] .record-btn {
+  background: rgba(255, 255, 255, 0.28);
+  border: 3px solid var(--salesbuff-yellow);
+  border-radius: 9999px;
+  color: var(--salesbuff-yellow-deep);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 8px 26px rgba(60, 40, 70, 0.2);
+}
+[data-theme="prism"] .record-btn::before {
+  inset: -6px;
+  border-width: 2px;
+  border-color: rgba(245, 166, 35, 0.55);
+  animation: pulse-ring 2.4s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+[data-theme="prism"] .record-btn:hover {
+  transform: scale(1.04);
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 0 28px rgba(245, 166, 35, 0.45),
+    0 8px 26px rgba(60, 40, 70, 0.24);
+}
+[data-theme="prism"] .record-btn:active {
+  transform: scale(0.98);
+}
+[data-theme="prism"] .record-btn[data-recording="true"] {
+  background: rgba(245, 166, 35, 0.85);
+  border-color: rgba(255, 255, 255, 0.9);
+  color: #ffffff;
+  animation: glow-breathe 1.6s ease-in-out infinite;
+}
+
+/* Primary CTA — amber-tinted glass pill (still the clear primary). */
+[data-theme="prism"] .btn-yellow {
+  background: rgba(245, 166, 35, 0.42);
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 999px;
+  font-weight: 700;
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 6px 18px rgba(245, 166, 35, 0.25);
+}
+[data-theme="prism"] .btn-yellow:hover {
+  transform: translateY(-1px);
+  background: rgba(245, 166, 35, 0.58);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 8px 24px rgba(245, 166, 35, 0.4);
+}
+[data-theme="prism"] .btn-yellow:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 12px rgba(245, 166, 35, 0.3);
+}
+[data-theme="prism"] .btn-yellow:disabled {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Ghost button — clear glass pill. */
+[data-theme="prism"] .btn-ghost {
+  background: rgba(255, 255, 255, 0.28);
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+[data-theme="prism"] .btn-ghost:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.42);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+[data-theme="prism"] .btn-ghost:active {
+  transform: translateY(0);
+}
+
+/* Voice bar — frosted glass pill, dark label, violet waveform (--waveform). */
+[data-theme="prism"] .voice-bar {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 16px;
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 12px 38px rgba(60, 40, 70, 0.16);
+}
+[data-theme="prism"] .voice-bar-label {
+  color: var(--salesbuff-ink);
+}
+[data-theme="prism"] .voice-dot {
+  background: var(--accent-record);
+}
+
+/* Pills on the glass cards. */
+[data-theme="prism"] .pill {
+  border-color: var(--sb-badge-border);
+}
+[data-theme="prism"] .pill-priority-medium {
+  background: rgba(245, 166, 35, 0.32);
+  color: var(--salesbuff-ink);
+}
+[data-theme="prism"] .pill-priority-low,
+[data-theme="prism"] .pill-confidence {
+  background: rgba(255, 255, 255, 0.4);
+  color: var(--salesbuff-ink);
+  border-color: var(--sb-badge-border);
+}
+[data-theme="prism"] .pill-category {
+  background: rgba(255, 255, 255, 0.45);
+  color: var(--salesbuff-ink);
+  border-color: var(--sb-badge-border);
+}
+
+/* Brand mark keeps its dark SVG tile; glassy white frame. */
+[data-theme="prism"] .brand-mark {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* "Ready when you are" empty state — the clearest glass so the gradient blooms. */
+[data-theme="prism"] .ready-panel {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 18px 50px rgba(60, 40, 70, 0.2);
+}
+
+/* ───────────── HORIZON (navy→white gradient · dark frosted glass) ───────
+   Dark navy frosted-glass cards on the navy→white gradient. Cards stay fairly
+   bottom; glass reads through the blur, lit edges and translucency. */
+[data-theme="horizon"] .skeuo-panel {
+  background: rgba(13, 23, 40, 0.8);
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 16px 44px rgba(3, 8, 18, 0.45);
+}
+
+[data-theme="horizon"] .skeuo-card {
+  background: rgba(14, 25, 40, 0.82);
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 12px 36px rgba(3, 8, 18, 0.4);
+}
+[data-theme="horizon"] .skeuo-card:hover,
+[data-theme="horizon"] .skeuo-card[data-expanded="true"] {
+  transform: translateY(-2px);
+  border-color: rgba(249, 115, 22, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 18px 48px rgba(3, 8, 18, 0.5);
+}
+
+[data-theme="horizon"] .skeuo-callout {
+  background: rgba(14, 25, 40, 0.82);
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  border-left: 3px solid var(--salesbuff-yellow);
+  border-radius: 16px;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 12px 36px rgba(3, 8, 18, 0.4);
+}
+
+[data-theme="horizon"] .skeuo-inset {
+  background: rgba(140, 152, 174, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+[data-theme="horizon"] .skeuo-textarea {
+  background: var(--sb-field-bg);
+  color: var(--salesbuff-ink);
+  border: 1px solid var(--sb-field-border);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+[data-theme="horizon"] .skeuo-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+[data-theme="horizon"] .skeuo-textarea:focus {
+  border-color: rgba(249, 115, 22, 0.5);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+}
+
+[data-theme="horizon"] .seg {
+  color: #64748b;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+}
+[data-theme="horizon"] .seg:hover {
+  color: var(--salesbuff-yellow);
+}
+[data-theme="horizon"] .seg.active {
+  background: rgba(13, 21, 36, 0.9);
+  color: #ffffff;
+  border-radius: 9px;
+  box-shadow: inset 0 -2px 0 var(--salesbuff-yellow);
+}
+
+/* White-glass pills on the dark cards (context chips). */
+[data-theme="horizon"] .glass-pill {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  color: var(--salesbuff-ink);
+}
+[data-theme="horizon"] .glass-pill.active,
+[data-theme="horizon"] .glass-pill[data-expanded="true"] {
+  background: rgba(249, 115, 22, 0.18);
+  border-color: rgba(249, 115, 22, 0.5);
+}
+
+/* Record — dark glass circle, orange ring + glyph; orange fill while recording. */
+[data-theme="horizon"] .record-btn {
+  background: rgba(13, 23, 40, 0.55);
+  border: 3px solid var(--salesbuff-yellow);
+  border-radius: 9999px;
+  color: var(--salesbuff-yellow);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 28px rgba(249, 115, 22, 0.3);
+}
+[data-theme="horizon"] .record-btn::before {
+  inset: -8px;
+  border-color: rgba(249, 115, 22, 0.35);
+  animation: pulse-ring 2s ease-out infinite;
+}
+[data-theme="horizon"] .record-btn::after {
+  content: "";
+  position: absolute;
+  inset: -16px;
+  border-radius: 9999px;
+  border: 1px solid rgba(249, 115, 22, 0.15);
+  animation: pulse-ring 2s ease-out 0.8s infinite;
+  pointer-events: none;
+}
+[data-theme="horizon"] .record-btn:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 40px rgba(249, 115, 22, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+[data-theme="horizon"] .record-btn:active {
+  transform: scale(0.98);
+}
+[data-theme="horizon"] .record-btn[data-recording="true"] {
+  background: var(--salesbuff-yellow);
+  border-color: var(--salesbuff-yellow);
+  color: #ffffff;
+  animation: glow-breathe 1.4s ease-in-out infinite;
+}
+
+/* Primary CTA — bold (near-solid) orange pill. */
+[data-theme="horizon"] .btn-yellow {
+  background: rgba(249, 115, 22, 0.92);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.35);
+}
+[data-theme="horizon"] .btn-yellow:hover {
+  transform: translateY(-1px);
+  background: var(--salesbuff-yellow-bright);
+  box-shadow: 0 8px 24px rgba(249, 115, 22, 0.5);
+}
+[data-theme="horizon"] .btn-yellow:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 12px rgba(249, 115, 22, 0.4);
+}
+[data-theme="horizon"] .btn-yellow:disabled {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Ghost — dark glass pill. */
+[data-theme="horizon"] .btn-ghost {
+  background: rgba(13, 21, 36, 0.65);
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: none;
+}
+[data-theme="horizon"] .btn-ghost:hover {
+  transform: translateY(-1px);
+  border-color: rgba(249, 115, 22, 0.5);
+}
+[data-theme="horizon"] .btn-ghost:active {
+  transform: translateY(0);
+}
+
+[data-theme="horizon"] .voice-bar {
+  background: rgba(14, 25, 40, 0.8);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  border-left: 3px solid var(--salesbuff-yellow);
+  border-radius: 14px;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 12px 36px rgba(3, 8, 18, 0.4);
+}
+
+[data-theme="horizon"] .pill {
+  border-color: var(--sb-badge-border);
+}
+[data-theme="horizon"] .pill-priority-medium {
+  background: rgba(249, 115, 22, 0.22);
+  color: #ffffff;
+}
+[data-theme="horizon"] .pill-priority-low,
+[data-theme="horizon"] .pill-confidence {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--salesbuff-ink);
+  border-color: var(--sb-badge-border);
+}
+[data-theme="horizon"] .pill-category {
+  background: rgba(249, 115, 22, 0.2);
+  color: #ffffff;
+  border-color: var(--sb-badge-border);
+}
+
+[data-theme="horizon"] .brand-mark {
+  background: rgba(13, 23, 40, 0.5);
+  border-color: rgba(249, 115, 22, 0.5);
+}
+
+/* horizon: voice waveform dot. */
+[data-theme="horizon"] .voice-dot {
+  background: var(--salesbuff-yellow);
+}
+
+/* ───────────── FOLIO (white editorial · purple accent · serif display) ─── */
+[data-theme="folio"] .skeuo-panel {
+  background: #ffffff;
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 4px 28px rgba(124, 58, 237, 0.08);
+}
+
+[data-theme="folio"] .skeuo-card {
+  background: #ffffff;
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(17, 24, 39, 0.05);
+}
+[data-theme="folio"] .skeuo-card:hover,
+[data-theme="folio"] .skeuo-card[data-expanded="true"] {
+  transform: translateY(-1px);
+  border-color: rgba(124, 58, 237, 0.22);
+  box-shadow: 0 8px 28px rgba(124, 58, 237, 0.12);
+}
+
+[data-theme="folio"] .skeuo-callout {
+  background: #f5f3ff;
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(124, 58, 237, 0.14);
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+[data-theme="folio"] .skeuo-inset {
+  background: #f9fafb;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 999px;
+  box-shadow: none;
+}
+
+[data-theme="folio"] .skeuo-textarea {
+  background: #ffffff;
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  border-radius: 12px;
+  box-shadow: none;
+}
+[data-theme="folio"] .skeuo-textarea:focus {
+  border-color: rgba(124, 58, 237, 0.45);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+}
+
+[data-theme="folio"] .seg {
+  color: var(--salesbuff-ink-soft);
+  border-radius: 999px;
+}
+[data-theme="folio"] .seg:hover {
+  color: var(--salesbuff-ink);
+}
+[data-theme="folio"] .seg.active {
+  background: #ffffff;
+  color: var(--salesbuff-ink);
+  box-shadow:
+    0 1px 4px rgba(17, 24, 39, 0.08),
+    inset 0 -2px 0 var(--salesbuff-yellow);
+}
+
+[data-theme="folio"] .glass-pill {
+  background: #f5f3ff;
+  border: 1px solid rgba(124, 58, 237, 0.16);
+  border-radius: 999px;
+  color: var(--salesbuff-ink);
+  box-shadow: none;
+}
+[data-theme="folio"] .glass-pill.active,
+[data-theme="folio"] .glass-pill[data-expanded="true"] {
+  background: #ede9fe;
+  border-color: rgba(124, 58, 237, 0.28);
+}
+
+[data-theme="folio"] .record-btn {
+  background: #ffffff;
+  color: var(--salesbuff-yellow);
+  border: 2px solid var(--salesbuff-yellow);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.18);
+}
+[data-theme="folio"] .record-btn::before {
+  border-color: rgba(124, 58, 237, 0.35);
+}
+[data-theme="folio"] .record-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 10px 30px rgba(124, 58, 237, 0.28);
+}
+[data-theme="folio"] .record-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.18);
+}
+[data-theme="folio"] .record-btn[data-recording="true"] {
+  background: var(--salesbuff-yellow);
+  color: #ffffff;
+  border-color: var(--salesbuff-yellow);
+  animation: glow-breathe 1.6s ease-in-out infinite;
+}
+
+[data-theme="folio"] .btn-yellow {
+  background: var(--salesbuff-yellow);
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  box-shadow: 0 8px 22px rgba(124, 58, 237, 0.28);
+}
+[data-theme="folio"] .btn-yellow:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(124, 58, 237, 0.38);
+}
+[data-theme="folio"] .btn-yellow:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.22);
+}
+[data-theme="folio"] .btn-yellow:disabled {
+  box-shadow: none;
+}
+
+[data-theme="folio"] .btn-ghost {
+  background: #ffffff;
+  color: var(--salesbuff-yellow);
+  border: 1.5px solid rgba(124, 58, 237, 0.35);
+  border-radius: 999px;
+  box-shadow: none;
+}
+[data-theme="folio"] .btn-ghost:hover {
+  background: #f5f3ff;
+  transform: none;
+  box-shadow: none;
+}
+
+[data-theme="folio"] .voice-bar {
+  background: #f5f3ff;
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(124, 58, 237, 0.16);
+  border-radius: 999px;
+  box-shadow: none;
+}
+[data-theme="folio"] .voice-bar-label {
+  color: var(--salesbuff-ink);
+}
+[data-theme="folio"] .voice-dot {
+  background: var(--salesbuff-yellow);
+}
+
+[data-theme="folio"] .pill-priority-medium {
+  background: var(--salesbuff-yellow);
+  color: #ffffff;
+  border-color: var(--salesbuff-yellow);
+}
+[data-theme="folio"] .pill-category {
+  background: var(--salesbuff-yellow);
+  color: #ffffff;
+}
+
+[data-theme="folio"] .brand-mark {
+  background: var(--brand-tile);
+  border-color: rgba(124, 58, 237, 0.35);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.18);
+}
+
+[data-theme="folio"] .font-display {
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+[data-theme="folio"] .ready-panel {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(124, 58, 237, 0.12);
+  box-shadow: 0 4px 24px rgba(124, 58, 237, 0.06);
+}
+
+/* ───────────── EMBER (cream page · brown theater · orange-red accent) ──── */
+[data-theme="ember"] .skeuo-panel {
+  background: #ffffff;
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(26, 20, 18, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(61, 43, 38, 0.06);
+}
+
+[data-theme="ember"] .skeuo-card {
+  background: #ffffff;
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(26, 20, 18, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(61, 43, 38, 0.05);
+}
+[data-theme="ember"] .skeuo-card:hover,
+[data-theme="ember"] .skeuo-card[data-expanded="true"] {
+  transform: translateY(-1px);
+  border-color: rgba(232, 71, 42, 0.18);
+  box-shadow: 0 10px 32px rgba(61, 43, 38, 0.1);
+}
+
+[data-theme="ember"] .skeuo-callout {
+  background: #fffdfb;
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(26, 20, 18, 0.08);
+  border-radius: 18px;
+  box-shadow: none;
+}
+
+[data-theme="ember"] .skeuo-inset {
+  background: #f8f5f2;
+  border: 1px solid rgba(26, 20, 18, 0.08);
+  border-radius: 999px;
+  box-shadow: none;
+}
+
+[data-theme="ember"] .skeuo-textarea {
+  background: #ffffff;
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(26, 20, 18, 0.12);
+  border-radius: 14px;
+  box-shadow: none;
+}
+[data-theme="ember"] .skeuo-textarea:focus {
+  border-color: rgba(232, 71, 42, 0.35);
+  box-shadow: 0 0 0 3px rgba(232, 71, 42, 0.1);
+}
+
+[data-theme="ember"] .seg {
+  color: var(--salesbuff-ink-soft);
+  border-radius: 999px;
+}
+[data-theme="ember"] .seg:hover {
+  color: var(--salesbuff-ink);
+}
+[data-theme="ember"] .seg.active {
+  background: #ffffff;
+  color: var(--salesbuff-ink);
+  box-shadow: 0 1px 4px rgba(26, 20, 18, 0.08);
+}
+
+[data-theme="ember"] .glass-pill {
+  background: #ffffff;
+  border: 1px solid rgba(26, 20, 18, 0.1);
+  border-radius: 999px;
+  color: var(--salesbuff-ink);
+  box-shadow: none;
+}
+[data-theme="ember"] .glass-pill.active,
+[data-theme="ember"] .glass-pill[data-expanded="true"] {
+  border-color: rgba(232, 71, 42, 0.28);
+  box-shadow: 0 4px 16px rgba(232, 71, 42, 0.08);
+}
+
+[data-theme="ember"] .record-btn {
+  background: var(--salesbuff-yellow);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 10px 28px rgba(232, 71, 42, 0.35);
+}
+[data-theme="ember"] .record-btn::before {
+  border-color: rgba(232, 71, 42, 0.35);
+}
+[data-theme="ember"] .record-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 12px 34px rgba(232, 71, 42, 0.45);
+}
+[data-theme="ember"] .record-btn:active {
+  transform: scale(0.98);
+}
+[data-theme="ember"] .record-btn[data-recording="true"] {
+  background: #ffffff;
+  color: var(--salesbuff-yellow);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 4px rgba(232, 71, 42, 0.25);
+  animation: glow-breathe 1.6s ease-in-out infinite;
+}
+
+[data-theme="ember"] .btn-yellow {
+  background: var(--salesbuff-yellow);
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  box-shadow: 0 8px 22px rgba(232, 71, 42, 0.28);
+}
+[data-theme="ember"] .btn-yellow:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(232, 71, 42, 0.38);
+}
+[data-theme="ember"] .btn-yellow:active {
+  transform: translateY(0);
+}
+
+[data-theme="ember"] .btn-ghost {
+  background: #ffffff;
+  color: var(--salesbuff-ink);
+  border: 1px solid rgba(26, 20, 18, 0.12);
+  border-radius: 999px;
+  box-shadow: none;
+}
+[data-theme="ember"] .btn-ghost:hover {
+  border-color: rgba(232, 71, 42, 0.28);
+  transform: none;
+  box-shadow: none;
+}
+
+/* Recording theater — dark chocolate pill with white waveform. */
+[data-theme="ember"] .voice-bar {
+  background: var(--theater-bg);
+  color: var(--theater-ink);
+  border: none;
+  border-radius: 999px;
+  box-shadow: 0 16px 40px rgba(61, 43, 38, 0.28);
+  margin-top: 0.75rem;
+}
+[data-theme="ember"] .voice-bar-label {
+  color: var(--theater-ink);
+}
+[data-theme="ember"] .voice-dot {
+  background: var(--accent-record);
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.45);
+  animation: voicePulse 1.3s ease-in-out infinite;
+}
+
+[data-theme="ember"] .pill-priority-medium {
+  background: rgba(232, 71, 42, 0.12);
+  color: var(--salesbuff-yellow-deep);
+  border-color: rgba(232, 71, 42, 0.22);
+}
+[data-theme="ember"] .pill-category {
+  background: var(--theater-bg);
+  color: #ffffff;
+  border-color: var(--theater-bg);
+}
+
+[data-theme="ember"] .brand-mark {
+  background: var(--brand-tile);
+  border: 2px solid rgba(26, 20, 18, 0.1);
+  box-shadow: 0 4px 16px rgba(61, 43, 38, 0.14);
+}
+
+[data-theme="ember"] .ready-panel {
+  background: #ffffff;
+  border: 1px solid rgba(26, 20, 18, 0.08);
+  box-shadow: 0 8px 32px rgba(61, 43, 38, 0.06);
+}
+
+/* Darken the header strip while recording (ember theater mode). */
+[data-theme="ember"][data-recording="true"] header.skeuo-panel {
+  background: var(--theater-bg);
+  color: var(--theater-ink);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 44px rgba(61, 43, 38, 0.32);
+}
+[data-theme="ember"][data-recording="true"] header.skeuo-panel .text-ink,
+[data-theme="ember"][data-recording="true"] header.skeuo-panel .text-ink-soft,
+[data-theme="ember"][data-recording="true"] header.skeuo-panel .text-muted-foreground {
+  color: rgba(255, 255, 255, 0.88);
+}
+[data-theme="ember"][data-recording="true"] header.skeuo-panel [class*="text-muted-foreground"] {
+  color: rgba(255, 255, 255, 0.55);
 }

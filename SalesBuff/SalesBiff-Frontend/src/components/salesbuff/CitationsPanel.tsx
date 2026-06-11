@@ -1,11 +1,11 @@
 import { ExternalLink, Gavel, Globe } from "lucide-react";
 import type { Citation } from "@/lib/api/research.functions";
-import { citationLabel, hostLabel } from "./RichText";
+import { citationLabel, hostLabel } from "@/lib/citation.utils";
 
 export function CitationsPanel({ citations }: { citations: Citation[] }) {
   if (!citations || citations.length === 0) return null;
   return (
-    <div className="mt-4 pt-4 border-t border-dashed border-[oklch(0.7_0.05_75/0.6)]">
+    <div className="mt-4 pt-4 border-t border-dashed border-[var(--sb-dashed)]">
       <div className="text-[0.7rem] uppercase tracking-wider font-bold text-[var(--salesbuff-ink-soft)] mb-2">
         Sources
       </div>
@@ -16,7 +16,7 @@ export function CitationsPanel({ citations }: { citations: Citation[] }) {
           const label = isLegal ? "Legal" : "Web";
           return (
             <li key={i} className="flex gap-2 items-start">
-              <span className="mt-0.5 inline-flex items-center gap-1 text-[0.65rem] uppercase font-bold px-1.5 py-0.5 rounded bg-[oklch(0.88_0.05_85)] text-[var(--salesbuff-ink)] border border-[oklch(0.72_0.05_80)]">
+              <span className="mt-0.5 inline-flex items-center gap-1 text-[0.65rem] uppercase font-bold px-1.5 py-0.5 rounded bg-[var(--sb-badge-bg)] text-[var(--salesbuff-ink)] border border-[var(--sb-badge-border)]">
                 <Icon size={10} /> {label}
               </span>
               <div className="flex-1 min-w-0">

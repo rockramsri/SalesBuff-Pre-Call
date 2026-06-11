@@ -11,7 +11,17 @@ export function VoiceBar({ analyserRef }: { analyserRef: RefObject<AnalyserNode 
 
   useEffect(() => {
     let raf = 0;
-    const ink = "rgba(22, 20, 12, 0.92)";
+    // Waveform color follows the theme: an explicit --waveform if set, otherwise
+    // the ink token (dark on sunrise's yellow bar, light on horizon's dark bar).
+    const readInk = () => {
+      const canvas = canvasRef.current;
+      const el = canvas ?? document.documentElement;
+      const styles = getComputedStyle(el);
+      const waveform = styles.getPropertyValue("--waveform").trim();
+      if (waveform) return waveform;
+      return styles.getPropertyValue("--salesbuff-ink").trim() || "rgba(22, 20, 12, 0.92)";
+    };
+    const ink = readInk();
 
     const drawBar = (
       ctx: CanvasRenderingContext2D,

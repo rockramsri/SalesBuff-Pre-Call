@@ -17,8 +17,8 @@ export function FactsView({ facts }: { facts: FactsReport }) {
     <div className="space-y-8">
       {facts.sections.map((section) => (
         <section key={section.category}>
-          <h2 className="font-display text-sm uppercase tracking-[0.2em] font-bold text-[oklch(0.78_0.08_85)] mb-3 flex items-center gap-3">
-            <span className="h-px flex-none w-6 bg-[oklch(0.55_0.1_70)]" />
+          <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-[var(--sb-eyebrow)] mb-3 flex items-center gap-3">
+            <span className="h-px flex-none w-6 bg-[var(--sb-hairline)]" />
             {section.display}
             <span className="text-[var(--salesbuff-ink-soft)] font-normal normal-case tracking-normal text-xs">
               {section.findings.length} {section.findings.length === 1 ? "fact" : "facts"}
@@ -47,7 +47,7 @@ function FactCard({ finding }: { finding: FactFinding }) {
       onClick={() => hasMore && setExpanded((e) => !e)}
     >
       <header className="flex items-start justify-between gap-2">
-        <h3 className="font-display text-base font-bold leading-tight text-[var(--salesbuff-ink)]">
+        <h3 className="text-[0.98rem] font-semibold leading-snug text-[var(--salesbuff-ink)]">
           {finding.headline}
         </h3>
         {hasMore && (
@@ -65,7 +65,7 @@ function FactCard({ finding }: { finding: FactFinding }) {
       )}
 
       {expanded && (
-        <div className="mt-4 pt-4 border-t border-dashed border-[oklch(0.7_0.05_75/0.6)]">
+        <div className="mt-4 pt-4 border-t border-dashed border-[var(--sb-dashed)]">
           {finding.detail && (
             <p className="text-[0.95rem] leading-relaxed text-[var(--salesbuff-ink)]">
               <Linkified text={finding.detail} />

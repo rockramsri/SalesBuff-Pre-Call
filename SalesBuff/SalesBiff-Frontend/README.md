@@ -1,6 +1,6 @@
-<!-- 🟡 SalesBuff frontend -->
+<!-- SalesBuff frontend -->
 
-# 🟡 SalesBuff — Frontend (TanStack Start)
+# SalesBuff — Frontend (TanStack Start)
 
 The web app where a sales rep prepares for and runs sales conversations in two
 modes:
@@ -11,8 +11,26 @@ modes:
 | **On-fly** | Start a live coaching session → speak during the call → receive real-time **coaching tips** as cards stream in. |
 
 Stack: **TanStack Start** (SSR + server functions) · **Vite** · **React 19** ·
-**Tailwind v4** · **Nitro** (deploy). UI is a flat, high-contrast yellow/ink
-"index-card" theme.
+**Tailwind v4** · **Nitro** (deploy). UI uses configurable build-time themes
+(see below).
+
+---
+
+## UI themes (`VITE_THEME`)
+
+One repo, multiple deploy skins. Set `VITE_THEME` at build time (Vercel env var
+or `.env.local`). Unknown values fall back to **sunrise**.
+
+| Theme | Look | npm dev script |
+|-------|------|----------------|
+| **sunrise** (default) | Yellow flat skeuomorphic stage, black ink | `npm run dev:sunrise` |
+| **prism** | Orange→violet gradient, frosted glass | `npm run dev:prism` |
+| **horizon** | Navy→white gradient, dark glass cards | `npm run dev:horizon` |
+| **folio** | White editorial, purple accent, serif headlines | `npm run dev:folio` |
+| **ember** | Warm cream page, brown recording theater, orange-red accent | `npm run dev:ember` |
+
+Build per theme: `npm run build:prism`, etc. Each Vercel project sets its own
+`VITE_THEME`.
 
 ---
 
@@ -33,6 +51,7 @@ cp .env.example .env        # then set SALESBUFF_API_URL
 
 | Var | Default | Purpose |
 |-----|---------|---------|
+| `VITE_THEME` | `sunrise` | UI skin (baked in at build time) |
 | `SALESBUFF_API_URL` | `http://127.0.0.1:8000` | Backend base URL (used **server-side** only) |
 | `NITRO_PRESET` | `vercel` | Deploy target preset (set automatically in `vite.config.ts`) |
 
@@ -46,10 +65,13 @@ cp .env.example .env        # then set SALESBUFF_API_URL
 
 | Command | Does |
 |---------|------|
-| `npm run dev` | Local dev server (HMR) |
+| `npm run dev` | Local dev server (HMR), sunrise theme |
+| `npm run dev:<theme>` | Dev with a specific theme (prism, horizon, …) |
 | `npm run build` | Production build (Nitro → `.vercel/output`) |
+| `npm run build:<theme>` | Production build with a specific theme |
 | `npm run preview` | Preview a production build |
 | `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript (`tsc --noEmit`) |
 | `npm run format` | Prettier |
 
 ---
@@ -90,17 +112,18 @@ src/
 ├── routes/
 │   ├── __root.tsx              # shell, error/404 boundaries, meta
 │   └── index.tsx               # mode switch, pre-call + on-fly UI
-├── components/salesbuff/       # BriefCard, CardList, FactsView, LiveTipCard,
-│                               # VoiceBar, RecordButton, Pills, RichText
+├── components/salesbuff/       # BriefCard, CardList, FactsView, VoiceBar,
+│                               # RecordButton, Pills, RichText, BrandMark
 ├── hooks/
 │   ├── use-speech-recorder.ts  # Web Speech API + waveform (shared by both modes)
 │   └── use-live-coaching.ts    # session lifecycle, chunk ingest, SSE tips
-└── lib/api/
-    ├── research.functions.ts   # server functions → /research/*
-    └── onfly.functions.ts      # server functions → /onfly/*
+├── lib/
+│   ├── theme.ts                # VITE_THEME → data-theme on <html>
+│   └── api/
+│       ├── research.functions.ts
+│       └── onfly.functions.ts
+└── styles.css                  # theme tokens + per-theme overrides
 ```
-
-`src/components/ui/` is the shadcn-style primitive library (not all of it is used).
 
 ---
 
@@ -110,6 +133,7 @@ src/
 - **Framework Preset:** Other (a `vercel.json` is included: `framework: null`,
   `outputDirectory: .vercel/output`)
 - **Env:** `SALESBUFF_API_URL` = your Render backend URL (no trailing slash)
+- **Env:** `VITE_THEME` = one of `sunrise`, `prism`, `horizon`, `folio`, `ember`
 
 `vite.config.ts` already forces the Nitro **`vercel`** preset and the
 `.vercel/output` Build Output layout, so `npm run build` produces exactly what
